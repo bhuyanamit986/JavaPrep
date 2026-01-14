@@ -125,10 +125,189 @@ if (obj instanceof String s) {
 - Restrict inheritance to a known set of subtypes.
 - Great for modeling closed hierarchies (e.g., expression trees).
 
-## 7) Interview questions
+## 7) Covariant Return Types
+
+```java
+class Animal {
+    Animal reproduce() { return new Animal(); }
+}
+
+class Dog extends Animal {
+    @Override
+    Dog reproduce() {  // Covariant return type - returns subtype
+        return new Dog();
+    }
+}
+```
+
+**Interview point**: Since Java 5, overriding methods can return a subtype (covariant return type), but parameters must match exactly (invariant).
+
+---
+
+## 8) Method Hiding vs Overriding
+
+### Static Methods (Hiding)
+
+```java
+class Parent {
+    static void staticMethod() { System.out.println("Parent static"); }
+    void instanceMethod() { System.out.println("Parent instance"); }
+}
+
+class Child extends Parent {
+    static void staticMethod() { System.out.println("Child static"); }  // Hides
+    @Override
+    void instanceMethod() { System.out.println("Child instance"); }    // Overrides
+}
+
+Parent obj = new Child();
+obj.staticMethod();   // "Parent static" - resolved at compile time
+obj.instanceMethod(); // "Child instance" - resolved at runtime
+```
+
+---
+
+## 9) Marker Interfaces
+
+Interfaces with no methods that "mark" a capability:
+- `Serializable` - Object can be serialized
+- `Cloneable` - Object can be cloned
+- `RandomAccess` - List supports fast random access
+
+```java
+public class Person implements Serializable {
+    // No methods to implement, but signals serialization support
+}
+
+// Modern alternative: annotations
+@Immutable
+public class Value { }
+```
+
+---
+
+## 10) Code Examples
+
+### Composition Over Inheritance
+
+```java
+// BAD: Using inheritance for code reuse
+class Stack extends ArrayList {
+    public void push(Object o) { add(o); }
+    public Object pop() { return remove(size() - 1); }
+    // Problem: inherits add(index), remove(index), etc.
+}
+
+// GOOD: Using composition
+class Stack {
+    private final List<Object> list = new ArrayList<>();
+    
+    public void push(Object o) { list.add(o); }
+    public Object pop() { return list.remove(list.size() - 1); }
+    public int size() { return list.size(); }
+    // Only exposes stack operations
+}
+```
+
+### LSP Violation Example
+
+```java
+// BAD: Square extends Rectangle violates LSP
+class Rectangle {
+    protected int width, height;
+    
+    public void setWidth(int w) { width = w; }
+    public void setHeight(int h) { height = h; }
+    public int area() { return width * height; }
+}
+
+class Square extends Rectangle {
+    @Override
+    public void setWidth(int w) { width = height = w; }  // Breaks expectations!
+    @Override
+    public void setHeight(int h) { width = height = h; }
+}
+
+// This code works for Rectangle but breaks for Square
+void resize(Rectangle r) {
+    r.setWidth(5);
+    r.setHeight(4);
+    assert r.area() == 20;  // Fails for Square!
+}
+
+// GOOD: Use composition or separate hierarchy
+interface Shape { int area(); }
+record Rectangle(int width, int height) implements Shape {
+    public int area() { return width * height; }
+}
+record Square(int side) implements Shape {
+    public int area() { return side * side; }
+}
+```
+
+### Interface Segregation
+
+```java
+// BAD: Fat interface
+interface Worker {
+    void work();
+    void eat();
+    void sleep();
+}
+
+class Robot implements Worker {
+    public void work() { /* ok */ }
+    public void eat() { /* doesn't make sense */ }
+    public void sleep() { /* doesn't make sense */ }
+}
+
+// GOOD: Segregated interfaces
+interface Workable { void work(); }
+interface Eatable { void eat(); }
+interface Sleepable { void sleep(); }
+
+class Human implements Workable, Eatable, Sleepable { }
+class Robot implements Workable { }
+```
+
+### Dependency Inversion
+
+```java
+// BAD: High-level depends on low-level
+class UserService {
+    private MySQLUserRepository repo = new MySQLUserRepository();  // Concrete!
+}
+
+// GOOD: Both depend on abstraction
+interface UserRepository {
+    User findById(Long id);
+    void save(User user);
+}
+
+class UserService {
+    private final UserRepository repo;  // Abstraction
+    
+    public UserService(UserRepository repo) {
+        this.repo = repo;  // Injected
+    }
+}
+
+class MySQLUserRepository implements UserRepository { }
+class MongoUserRepository implements UserRepository { }
+```
+
+---
+
+## 11) Interview questions
 
 - Give an example where inheritance is the wrong choice and composition is better.
 - Explain LSP with a real example (not just definitions).
 - When would you prefer interface over abstract class?
 - How do you design an immutable class? Why does it help concurrency?
+- What is the diamond problem? How does Java handle it?
+- Explain the difference between method hiding and method overriding.
+- What are marker interfaces? Give examples.
+- How do default methods in interfaces work? What if two interfaces have the same default method?
+- What is the difference between coupling and cohesion?
+- Explain the Open/Closed principle with a code example.
 
