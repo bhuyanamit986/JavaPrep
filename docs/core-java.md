@@ -129,10 +129,311 @@ Bad:
 - Compile-time vs runtime retention: `@Retention(RUNTIME)` is available via reflection.
 - Common built-ins: `@Override`, `@Deprecated`, `@FunctionalInterface`, `@SuppressWarnings`.
 
-## 12) Common interview questions
+## 12) Wrapper Classes and Autoboxing
+
+### Wrapper Classes
+
+| Primitive | Wrapper |
+|-----------|---------|
+| `byte` | `Byte` |
+| `short` | `Short` |
+| `int` | `Integer` |
+| `long` | `Long` |
+| `float` | `Float` |
+| `double` | `Double` |
+| `char` | `Character` |
+| `boolean` | `Boolean` |
+
+### Autoboxing and Unboxing
+
+```java
+// Autoboxing: primitive → wrapper
+Integer num = 10;  // Compiler: Integer.valueOf(10)
+
+// Unboxing: wrapper → primitive
+int value = num;   // Compiler: num.intValue()
+
+// Pitfall: NullPointerException
+Integer x = null;
+int y = x;  // NPE! Unboxing null
+```
+
+### Integer Cache (-128 to 127)
+
+```java
+Integer a = 100;
+Integer b = 100;
+System.out.println(a == b);  // true (cached)
+
+Integer c = 200;
+Integer d = 200;
+System.out.println(c == d);  // false (new objects)
+System.out.println(c.equals(d));  // true (always use equals!)
+```
+
+---
+
+## 13) Varargs
+
+```java
+public void print(String... args) {
+    for (String arg : args) {
+        System.out.println(arg);
+    }
+}
+
+// Usage
+print("one");
+print("one", "two", "three");
+print(new String[]{"a", "b"});
+```
+
+**Rules:**
+- Only one varargs parameter allowed
+- Must be the last parameter
+- Treated as an array internally
+
+---
+
+## 14) Enums
+
+```java
+public enum Status {
+    PENDING("P", 1),
+    ACTIVE("A", 2),
+    CLOSED("C", 3);
+    
+    private final String code;
+    private final int value;
+    
+    Status(String code, int value) {
+        this.code = code;
+        this.value = value;
+    }
+    
+    public String getCode() { return code; }
+    public int getValue() { return value; }
+    
+    // Find by code
+    public static Status fromCode(String code) {
+        for (Status s : values()) {
+            if (s.code.equals(code)) return s;
+        }
+        throw new IllegalArgumentException("Unknown code: " + code);
+    }
+}
+
+// Usage
+Status status = Status.ACTIVE;
+String name = status.name();      // "ACTIVE"
+int ordinal = status.ordinal();   // 1
+Status[] all = Status.values();
+Status parsed = Status.valueOf("PENDING");
+```
+
+**Interview tip**: Enums are the best way to implement Singleton in Java.
+
+---
+
+## 15) Records (Java 14+)
+
+```java
+// Traditional class
+public class Person {
+    private final String name;
+    private final int age;
+    
+    public Person(String name, int age) {
+        this.name = name;
+        this.age = age;
+    }
+    
+    public String name() { return name; }
+    public int age() { return age; }
+    // Plus equals(), hashCode(), toString()...
+}
+
+// Record (same functionality)
+public record Person(String name, int age) {
+    // Compact constructor for validation
+    public Person {
+        if (age < 0) throw new IllegalArgumentException("Age cannot be negative");
+    }
+    
+    // Additional methods
+    public String greeting() {
+        return "Hello, " + name;
+    }
+}
+
+// Usage
+Person p = new Person("John", 30);
+String name = p.name();  // Accessor method
+```
+
+---
+
+## 16) Sealed Classes (Java 17+)
+
+```java
+// Only permitted classes can extend
+public sealed class Shape permits Circle, Rectangle, Triangle {
+    // ...
+}
+
+public final class Circle extends Shape {
+    // Cannot be extended further
+}
+
+public sealed class Rectangle extends Shape permits Square {
+    // Only Square can extend Rectangle
+}
+
+public non-sealed class Triangle extends Shape {
+    // Any class can extend Triangle
+}
+
+public final class Square extends Rectangle {
+    // ...
+}
+```
+
+---
+
+## 17) Pattern Matching
+
+### instanceof Pattern Matching (Java 16+)
+
+```java
+// Old way
+if (obj instanceof String) {
+    String s = (String) obj;
+    System.out.println(s.length());
+}
+
+// New way
+if (obj instanceof String s) {
+    System.out.println(s.length());  // s is already cast
+}
+
+// With negation
+if (!(obj instanceof String s)) {
+    return;
+}
+// s is in scope here
+```
+
+### Switch Pattern Matching (Java 21+)
+
+```java
+String format(Object obj) {
+    return switch (obj) {
+        case Integer i -> "Integer: " + i;
+        case String s -> "String: " + s;
+        case null -> "Null value";
+        default -> "Unknown: " + obj;
+    };
+}
+```
+
+---
+
+## 18) Common interview questions
 
 - Why is `String` immutable? What is the string pool?
 - Explain `equals`/`hashCode` contract with a `HashMap` example.
 - Difference between `Comparable` and `Comparator`. What happens in `TreeSet` if comparator treats different objects as equal?
 - Is Java pass-by-value or pass-by-reference? Show an example.
+- What is autoboxing? What pitfalls can it cause?
+- What is the Integer cache? Why does `==` sometimes work for Integer comparison?
+- Explain the difference between final, finally, and finalize.
+- What are Records in Java? When would you use them?
+- What are Sealed Classes? What problem do they solve?
+- How does pattern matching with instanceof work?
+
+---
+
+## 19) Code Examples
+
+### Proper equals/hashCode Implementation
+
+```java
+public class Employee {
+    private final String id;
+    private final String name;
+    private final int age;
+    
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Employee employee = (Employee) o;
+        return age == employee.age &&
+               Objects.equals(id, employee.id) &&
+               Objects.equals(name, employee.name);
+    }
+    
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name, age);
+    }
+}
+```
+
+### Comparable vs Comparator
+
+```java
+// Comparable - natural ordering
+public class Person implements Comparable<Person> {
+    private String name;
+    private int age;
+    
+    @Override
+    public int compareTo(Person other) {
+        return this.name.compareTo(other.name);
+    }
+}
+
+// Comparator - external ordering
+Comparator<Person> byAge = Comparator.comparingInt(Person::getAge);
+Comparator<Person> byNameThenAge = Comparator
+    .comparing(Person::getName)
+    .thenComparingInt(Person::getAge);
+
+// Reverse order
+Comparator<Person> byAgeDesc = Comparator.comparingInt(Person::getAge).reversed();
+
+// With nulls
+Comparator<Person> nullsFirst = Comparator.nullsFirst(byAge);
+```
+
+### Optional Best Practices
+
+```java
+// Creating
+Optional<String> empty = Optional.empty();
+Optional<String> of = Optional.of("value");       // NPE if null
+Optional<String> nullable = Optional.ofNullable(value);
+
+// Using
+String result = optional
+    .filter(s -> s.length() > 3)
+    .map(String::toUpperCase)
+    .orElse("default");
+
+// orElse vs orElseGet
+optional.orElse(computeExpensive());       // Always computed
+optional.orElseGet(() -> computeExpensive()); // Computed only if needed
+
+// Throwing
+String value = optional.orElseThrow(() -> 
+    new IllegalArgumentException("Value required"));
+
+// ifPresent
+optional.ifPresent(System.out::println);
+optional.ifPresentOrElse(
+    System.out::println,
+    () -> System.out.println("Empty")
+);
+```
 
