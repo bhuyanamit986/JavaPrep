@@ -1,92 +1,238 @@
 # Java Interview Preparation (Comprehensive)
 
-This repository is a structured, detailed preparation guide for **cracking Java interviews**—from core language fundamentals to **Streams**, **Concurrency**, and **Multithreading**, plus the JVM, performance, testing, and commonly asked system/design topics.
+This repository is a **complete, interview-focused Java preparation handbook**. It is organized exactly like a strong interview syllabus and covers every topic with explanations, pitfalls, and code illustrations.
 
 ## How to use this repo
 
-- Start with the **Study plan** below if you’re new or rusty.
-- Use the **Table of Contents** to jump to topics.
-- Each chapter includes: explanations, common pitfalls, interview questions, and code examples.
+- If you have <2–4 weeks, go **top-to-bottom** from Fundamentals → Strings → JVM/GC → Collections → Concurrency → Java 8+.
+- If you have an interview in <7 days, focus on **Strings + Collections + Concurrency + JVM/GC** and revise the last-minute sections in each chapter.
 
-## Study plan (suggested)
+## Table of Contents (requested structure)
 
-- **Week 1**: Core Java + OOP + Exceptions
-- **Week 2**: Collections + Generics + JVM basics
-- **Week 3**: Functional programming + Streams
-- **Week 4**: Concurrency + Multithreading (deep dive)
-- **Week 5**: Testing + Build tools + Design patterns + Spring basics (if relevant)
-- Ongoing: DSA practice + revise the cheat sheets
+### **1️⃣ Java Fundamentals (Must-Master)** — [`docs/01-java-fundamentals.md`](docs/01-java-fundamentals.md)
 
-## Table of Contents
+#### **1.1 Java Basics**
 
-1. **Core Java fundamentals** — [`docs/core-java.md`](docs/core-java.md)  
-   - Syntax & types, references vs primitives, pass-by-value
-   - `String`/immutability, `equals`/`hashCode`, `Comparable`/`Comparator`
-   - `static`, initialization order, `final`, nested classes
-   - Date/Time API, Optional, annotations (basics)
+- History & evolution of Java
+- Features of Java (WORA, platform independence)
+- JDK vs JRE vs JVM
+- Compilation & execution flow
+- Java memory model (high-level overview)
+- Keywords, identifiers, literals
+- Data types (primitive vs non-primitive)
+- Type casting (implicit, explicit)
+- Operators (arithmetic, logical, bitwise, ternary)
+- Control statements (if, switch, loops)
+- Wrapper classes
+- Autoboxing & unboxing
+- Immutability basics
 
-2. **Object-Oriented Programming (OOP) + SOLID** — [`docs/oop-solid.md`](docs/oop-solid.md)  
-   - Encapsulation, inheritance, polymorphism, abstraction
-   - Composition vs inheritance, LSP pitfalls
-   - Interfaces vs abstract classes, sealed classes (modern Java)
+#### **1.2 Object-Oriented Programming (OOP)**
 
-3. **Exceptions, error handling & logging** — [`docs/exceptions-logging.md`](docs/exceptions-logging.md)  
-   - Checked vs unchecked, `try-with-resources`, suppression
-   - Custom exceptions, best practices, logging basics
+- Classes & objects
+- Constructors
+- `this` and `super`
+- Inheritance
+- Method overriding vs overloading
+- Polymorphism (compile-time vs runtime)
+- Abstraction (abstract class vs interface)
+- Encapsulation
+- SOLID principles
+- Composition vs inheritance
+- Coupling & cohesion
+- Marker interfaces
 
-4. **Collections & Generics** — [`docs/collections-generics.md`](docs/collections-generics.md)  
-   - `List`/`Set`/`Map`, complexity, common implementations
-   - Fail-fast iterators, immutability, `Collections` vs `Collectors`
-   - Generics, invariance, wildcards (`extends`/`super`), type erasure
+### **2️⃣ String Handling (High-Frequency Area)** — [`docs/02-string-handling.md`](docs/02-string-handling.md)
 
-5. **Functional programming in Java** — [`docs/functional-java.md`](docs/functional-java.md)  
-   - Lambdas, method references, functional interfaces
-   - Effectively final, closure capture, best practices
+#### **2.1 String Class Deep Dive**
 
-6. **Streams (including parallel streams)** — [`docs/streams.md`](docs/streams.md)  
-   - Stream pipeline model, laziness, intermediate vs terminal ops
-   - `map`/`flatMap`/`filter`/`reduce`/`collect`
-   - `Collectors` deep dive, grouping, partitioning
-   - Parallel streams: when to use, when to avoid
+- String immutability
+- String pool & `intern()`
+- `==` vs `equals()`
+- `hashCode()` contract
+- `StringBuilder` vs `StringBuffer`
+- Performance implications
+- Common string interview problems
 
-7. **Concurrency & Multithreading (deep dive)** — [`docs/concurrency-multithreading.md`](docs/concurrency-multithreading.md)  
-   - Threads, `Runnable`/`Callable`, thread lifecycle
-   - `synchronized`, monitors, `wait/notify`, deadlocks
-   - Java Memory Model, `volatile`, happens-before
-   - Executors, thread pools, Futures, `CompletableFuture`
-   - Locks, atomics, concurrent collections, fork/join
-   - Common pitfalls (race conditions, visibility bugs, contention)
+### **3️⃣ Java Memory Management & JVM (Very Important)** — [`docs/03-jvm-memory-gc.md`](docs/03-jvm-memory-gc.md)
 
-8. **JVM, memory model & garbage collection** — [`docs/jvm-memory-gc.md`](docs/jvm-memory-gc.md)  
-   - Stack vs heap, object layout (conceptual), class loading
-   - GC concepts, tuning basics, avoiding leaks
+#### **3.1 JVM Architecture**
 
-9. **I/O, NIO.2, and networking basics** — [`docs/io-nio-networking.md`](docs/io-nio-networking.md)  
-   - Streams, buffers, channels, files, serialization pitfalls
-   - HTTP basics, sockets overview (interview-level)
+- ClassLoader subsystem
+- Runtime data areas
+  - Heap
+  - Stack
+  - Method area
+  - PC register
+  - Native method stack
+- Execution engine
+- JIT compiler
 
-10. **Design patterns (practical interview set)** — [`docs/design-patterns.md`](docs/design-patterns.md)  
-   - Singleton pitfalls, Factory, Strategy, Builder, Adapter
-   - Observer, Decorator, Template Method; when to apply
+#### **3.2 Garbage Collection**
 
-11. **Testing & quality** — [`docs/testing.md`](docs/testing.md)  
-   - Unit vs integration tests, mocking, test design
-   - JUnit basics, parameterized tests, test anti-patterns
+- GC basics
+- Types of GC (Serial, Parallel, CMS, G1, ZGC)
+- Young vs Old generation
+- Minor vs Major GC
+- Stop-the-world events
+- Memory leaks & profiling
+- `finalize()` (deprecated concepts)
+- Soft, Weak, Phantom references
 
-12. **Build tools & dependency management** — [`docs/build-tools.md`](docs/build-tools.md)  
-   - Maven/Gradle basics, dependency scopes, BOMs, reproducibility
+### **4️⃣ Exception Handling** — [`docs/04-exception-handling.md`](docs/04-exception-handling.md)
 
-13. **Spring / Spring Boot (optional but common)** — [`docs/spring-boot.md`](docs/spring-boot.md)  
-   - DI, beans, scopes, lifecycle; REST controllers
-   - Transactions, common annotations, pitfalls
+- Checked vs unchecked exceptions
+- Error vs Exception
+- try-catch-finally
+- try-with-resources
+- Custom exceptions
+- Exception propagation
+- Best practices
+- Common interview traps
 
-14. **DSA for Java interviews (minimal but essential)** — [`docs/dsa-for-java.md`](docs/dsa-for-java.md)  
-   - Big-O, arrays/strings, hashmaps, stacks/queues, trees/graphs
-   - Patterns: sliding window, two pointers, BFS/DFS, DP basics
+### **5️⃣ Collections Framework (Most Asked Topic)** — [`docs/05-collections-framework.md`](docs/05-collections-framework.md)
 
-15. **Cheat sheets & last-minute revision** — [`docs/cheat-sheets.md`](docs/cheat-sheets.md)  
-   - Rapid review for Collections, Streams, Concurrency, JVM
+#### **5.1 Core Interfaces**
 
-## Contributing / extending
+- Collection vs Collections
+- List, Set, Queue, Deque, Map
+- Iterator vs ListIterator
+- Fail-fast vs fail-safe
 
-Add new notes under `docs/` and link them from this README.
+#### **5.2 List Implementations**
+
+- ArrayList
+- LinkedList
+- Vector
+- CopyOnWriteArrayList
+- Performance comparison
+
+#### **5.3 Set Implementations**
+
+- HashSet
+- LinkedHashSet
+- TreeSet
+- Comparator vs Comparable
+- equals() & hashCode() importance
+
+#### **5.4 Map Implementations**
+
+- HashMap (internal working, resizing, treeification)
+- LinkedHashMap
+- TreeMap
+- ConcurrentHashMap
+- Hashtable (legacy)
+
+### **6️⃣ Multithreading & Concurrency (Critical for SDE Roles)** — [`docs/06-multithreading-concurrency.md`](docs/06-multithreading-concurrency.md)
+
+#### **6.1 Thread Basics**
+
+- Process vs thread
+- Thread lifecycle
+- Creating threads (Thread vs Runnable vs Callable)
+- Thread priorities
+- Daemon threads
+
+#### **6.2 Synchronization & Locks**
+
+- synchronized keyword
+- Intrinsic locks
+- Deadlock, livelock, starvation
+- Volatile keyword
+- Atomic classes
+- ReentrantLock
+- ReadWriteLock
+
+#### **6.3 Executor Framework**
+
+- ThreadPoolExecutor
+- Fixed vs Cached vs Scheduled thread pool
+- ForkJoinPool
+- CompletableFuture
+- Future vs CompletableFuture
+
+### **7️⃣ Java 8+ Features (Very High ROI)** — [`docs/07-java8-plus.md`](docs/07-java8-plus.md)
+
+#### **7.1 Lambda Expressions**
+
+- Functional interfaces
+- Method references
+- Effectively final variables
+
+#### **7.2 Streams API**
+
+- Stream pipeline
+- Intermediate vs terminal operations
+- filter, map, flatMap
+- reduce, collect
+- Parallel streams
+- Common stream problems
+
+#### **7.3 Optional**
+
+- Purpose & usage
+- Best practices
+- Anti-patterns
+
+#### **7.4 Date & Time API**
+
+- LocalDate, LocalTime, LocalDateTime
+- ZonedDateTime
+- Period vs Duration
+
+### **8️⃣ File Handling & I/O** — [`docs/08-file-io.md`](docs/08-file-io.md)
+
+- File class
+- Streams vs Readers/Writers
+- Serialization & deserialization
+- transient keyword
+- Externalization
+- NIO basics
+- Path, Files
+
+### **9️⃣ Design Patterns (Interview Gold)** — [`docs/09-design-patterns.md`](docs/09-design-patterns.md)
+
+#### **9.1 Creational**
+
+- Singleton (all variations + pitfalls)
+- Factory
+- Abstract Factory
+- Builder
+- Prototype
+
+#### **9.2 Structural**
+
+- Adapter
+- Decorator
+- Proxy
+- Composite
+
+#### **9.3 Behavioral**
+
+- Strategy
+- Observer
+- Template Method
+- Command
+
+### **🔟 Java Performance & Best Practices** — [`docs/10-performance-best-practices.md`](docs/10-performance-best-practices.md)
+
+- Object creation cost
+- Memory leaks
+- Caching strategies
+- Immutable objects
+- Effective Java guidelines
+- Common performance mistakes
+
+### **1️⃣1️⃣ JVM, GC & Production Issues** — [`docs/11-production-issues.md`](docs/11-production-issues.md)
+
+- Heap dump analysis
+- Thread dump analysis
+- OutOfMemoryError scenarios
+- CPU spikes
+- Memory leaks in collections
+- Logging best practices
+
+## Notes
+
+- The chapters above are the “main path.”  
+- Some earlier split-out notes also exist under `docs/` (e.g., `core-java.md`, `streams.md`) and are referenced from the main chapters where useful.
