@@ -4,19 +4,240 @@ Java provides multiple APIs for input/output operations. This guide covers tradi
 
 ## Definitions
 
-- **Stream**: a sequential flow of bytes or characters (read or write).
-- **Byte vs character streams**: bytes handle raw binary; characters handle text with encoding.
-- **Buffer**: a fixed-size container that data is read into or written from.
-- **Channel**: a bidirectional I/O connection used in NIO.
-- **Blocking vs non-blocking**: blocking waits for data; non-blocking returns immediately.
-- **Selector**: watches multiple channels and tells you which are ready for I/O.
-- **Socket**: an endpoint for network communication.
+- **Stream**: A sequential flow of data (bytes or characters) from a source to a destination. Like water flowing through a pipe - you read/write one piece at a time.
+
+- **Byte Stream**: Handles raw binary data (images, audio, any file). Base classes: `InputStream`, `OutputStream`.
+
+- **Character Stream**: Handles text data with character encoding. Base classes: `Reader`, `Writer`.
+
+- **Buffer**: A fixed-size container in memory where data is temporarily stored during I/O operations. Enables batch read/write for efficiency.
+
+- **Channel**: A bidirectional I/O connection in NIO. Unlike streams, channels can read and write, and work with buffers.
+
+- **Blocking I/O**: Thread waits (blocks) until data is available or operation completes. Simple but doesn't scale well.
+
+- **Non-blocking I/O**: Thread checks if data is available and returns immediately. Enables handling many connections with few threads.
+
+- **Selector**: Monitors multiple channels and notifies which are ready for I/O. Key to building scalable servers.
+
+- **Socket**: An endpoint for network communication. TCP sockets provide reliable, ordered delivery; UDP sockets are faster but unreliable.
+
+- **Serialization**: Converting an object to a byte stream for storage or transmission. Inverse is deserialization.
 
 ## Illustrations
 
-- **Stream**: like water flowing through a pipe from a source to a sink.
-- **Buffer**: a bucket you fill before pouring into another container.
-- **Selector**: a receptionist who tells you which phone lines have callers waiting.
+### Stream vs Buffer I/O Model
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                    Traditional Stream I/O (java.io)                      │
+│                                                                          │
+│   Data Source                                             Application   │
+│   (File/Network)                                                        │
+│        │                                                                │
+│        │   ┌───────────────────────────────────────┐                   │
+│        └──▶│         InputStream                   │──▶ read()         │
+│            │   Byte by byte or small chunks        │    one at a time  │
+│            └───────────────────────────────────────┘                   │
+│                                                                          │
+│   Characteristics:                                                      │
+│   • Sequential access only                                              │
+│   • Blocking (thread waits for data)                                    │
+│   • Simple API                                                          │
+│   • One direction per stream                                            │
+│                                                                          │
+└─────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────┐
+│                    NIO Buffer/Channel Model (java.nio)                   │
+│                                                                          │
+│   Data Source                                             Application   │
+│   (File/Network)                                                        │
+│        │                                                                │
+│        │   ┌──────────────┐   ┌──────────────┐                         │
+│        └──▶│   Channel    │──▶│   Buffer     │──▶ Process buffer      │
+│            │ (bidirectional)  │ (batch data) │    contents            │
+│        ┌──│              │◀──│              │◀── Application          │
+│        │   └──────────────┘   └──────────────┘                         │
+│        ▼                                                                │
+│   Data Destination                                                      │
+│                                                                          │
+│   Characteristics:                                                      │
+│   • Random access possible                                              │
+│   • Can be non-blocking                                                 │
+│   • More efficient for large data                                       │
+│   • Bidirectional channels                                              │
+│                                                                          │
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
+### Buffer Operations Visualized
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                         Buffer Operations                                │
+│                                                                          │
+│   Buffer Structure:                                                     │
+│   ┌─────────────────────────────────────────────────────────────┐       │
+│   │  capacity = 10 (fixed total size)                           │       │
+│   │  position = current read/write index                        │       │
+│   │  limit = end of valid data                                  │       │
+│   └─────────────────────────────────────────────────────────────┘       │
+│                                                                          │
+│   After allocate(10):                                                   │
+│   ┌───┬───┬───┬───┬───┬───┬───┬───┬───┬───┐                            │
+│   │   │   │   │   │   │   │   │   │   │   │                            │
+│   └───┴───┴───┴───┴───┴───┴───┴───┴───┴───┘                            │
+│   ↑                                       ↑                             │
+│   position=0                              limit=capacity=10             │
+│                                                                          │
+│   After put("Hello"):                                                   │
+│   ┌───┬───┬───┬───┬───┬───┬───┬───┬───┬───┐                            │
+│   │ H │ e │ l │ l │ o │   │   │   │   │   │                            │
+│   └───┴───┴───┴───┴───┴───┴───┴───┴───┴───┘                            │
+│                       ↑                   ↑                             │
+│                       position=5          limit=capacity=10             │
+│                                                                          │
+│   After flip() (prepare for reading):                                   │
+│   ┌───┬───┬───┬───┬───┬───┬───┬───┬───┬───┐                            │
+│   │ H │ e │ l │ l │ o │   │   │   │   │   │                            │
+│   └───┴───┴───┴───┴───┴───┴───┴───┴───┴───┘                            │
+│   ↑                   ↑                   ↑                             │
+│   position=0          limit=5             capacity=10                   │
+│                                                                          │
+│   After reading 3 bytes:                                                │
+│   ┌───┬───┬───┬───┬───┬───┬───┬───┬───┬───┐                            │
+│   │ H │ e │ l │ l │ o │   │   │   │   │   │                            │
+│   └───┴───┴───┴───┴───┴───┴───┴───┴───┴───┘                            │
+│               ↑       ↑                                                 │
+│               position=3  limit=5                                       │
+│                                                                          │
+│   After clear() (prepare for writing again):                            │
+│   ┌───┬───┬───┬───┬───┬───┬───┬───┬───┬───┐                            │
+│   │ H │ e │ l │ l │ o │   │   │   │   │   │ (data still there!)        │
+│   └───┴───┴───┴───┴───┴───┴───┴───┴───┴───┘                            │
+│   ↑                                       ↑                             │
+│   position=0                              limit=capacity=10             │
+│                                                                          │
+│   After compact() (keep unread, prepare for writing):                   │
+│   ┌───┬───┬───┬───┬───┬───┬───┬───┬───┬───┐                            │
+│   │ l │ o │ l │ l │ o │   │   │   │   │   │ (moved "lo" to start)      │
+│   └───┴───┴───┴───┴───┴───┴───┴───┴───┴───┘                            │
+│           ↑                               ↑                             │
+│           position=2                      limit=capacity=10             │
+│                                                                          │
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
+### Non-Blocking I/O with Selector
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                    Selector-Based Non-Blocking I/O                       │
+│                                                                          │
+│   Traditional Blocking (one thread per connection):                     │
+│   ┌──────────────────────────────────────────────────────────────────┐ │
+│   │                                                                   │ │
+│   │   Client 1 ──▶ [Thread 1] ───▶ blocking read()... waiting...    │ │
+│   │   Client 2 ──▶ [Thread 2] ───▶ blocking read()... waiting...    │ │
+│   │   Client 3 ──▶ [Thread 3] ───▶ blocking read()... waiting...    │ │
+│   │   ...                                                            │ │
+│   │   Client N ──▶ [Thread N] ───▶ blocking read()... waiting...    │ │
+│   │                                                                   │ │
+│   │   Problem: 10,000 clients = 10,000 threads! (doesn't scale)     │ │
+│   │                                                                   │ │
+│   └──────────────────────────────────────────────────────────────────┘ │
+│                                                                          │
+│   Selector-Based Non-Blocking (one thread, many connections):           │
+│   ┌──────────────────────────────────────────────────────────────────┐ │
+│   │                                                                   │ │
+│   │                     ┌───────────────┐                            │ │
+│   │   Client 1 ─────────│               │                            │ │
+│   │   Client 2 ─────────│   SELECTOR    │──▶ "Channel 2 is ready!"  │ │
+│   │   Client 3 ─────────│               │                            │ │
+│   │   ...               │ (multiplexer) │    [Single Thread]         │ │
+│   │   Client N ─────────│               │    │                       │ │
+│   │                     └───────────────┘    │                       │ │
+│   │                            │              │                       │ │
+│   │                            │              ▼                       │ │
+│   │                            └───────▶ Process ready channels     │ │
+│   │                                      one at a time (fast)        │ │
+│   │                                                                   │ │
+│   │   Benefit: 10,000 clients = 1 thread!                           │ │
+│   │                                                                   │ │
+│   └──────────────────────────────────────────────────────────────────┘ │
+│                                                                          │
+│   Selection Keys (what selector reports):                               │
+│   ┌────────────────┬───────────────────────────────────────────────┐   │
+│   │ OP_ACCEPT      │ ServerSocketChannel ready to accept           │   │
+│   │ OP_CONNECT     │ SocketChannel finished connecting             │   │
+│   │ OP_READ        │ Channel has data to read                      │   │
+│   │ OP_WRITE       │ Channel ready to write (buffer has space)     │   │
+│   └────────────────┴───────────────────────────────────────────────┘   │
+│                                                                          │
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
+### TCP vs UDP
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                         TCP vs UDP                                       │
+│                                                                          │
+│   TCP (Transmission Control Protocol)                                   │
+│   ┌──────────────────────────────────────────────────────────────────┐ │
+│   │                                                                   │ │
+│   │   Client                                              Server     │ │
+│   │     │                                                   │        │ │
+│   │     │ ──────────── SYN ────────────▶                   │        │ │
+│   │     │ ◀─────────── SYN + ACK ────────                  │        │ │
+│   │     │ ──────────── ACK ────────────▶                   │        │ │
+│   │     │         (Connection established)                  │        │ │
+│   │     │                                                   │        │ │
+│   │     │ ══════ Reliable, ordered data transfer ════════▶│        │ │
+│   │     │ ◀════════════════════════════════════════════════│        │ │
+│   │     │                                                   │        │ │
+│   │     │ ──────────── FIN ────────────▶                   │        │ │
+│   │     │ ◀─────────── ACK + FIN ────────                  │        │ │
+│   │     │ ──────────── ACK ────────────▶                   │        │ │
+│   │     │         (Connection closed)                       │        │ │
+│   │                                                                   │ │
+│   │   Features: Reliable, ordered, connection-oriented, slower       │ │
+│   │   Use for: HTTP, SSH, email, file transfer                      │ │
+│   │                                                                   │ │
+│   └──────────────────────────────────────────────────────────────────┘ │
+│                                                                          │
+│   UDP (User Datagram Protocol)                                          │
+│   ┌──────────────────────────────────────────────────────────────────┐ │
+│   │                                                                   │ │
+│   │   Client                                              Server     │ │
+│   │     │                                                   │        │ │
+│   │     │ ──────── Data packet 1 ──────────▶               │        │ │
+│   │     │ ──────── Data packet 2 ──────────▶ (may arrive)  │        │ │
+│   │     │ ──────── Data packet 3 ─────X      (lost!)       │        │ │
+│   │     │ ──────── Data packet 4 ──────────▶               │        │ │
+│   │     │                                                   │        │ │
+│   │     │   (No connection, no ACK, no guaranteed order)    │        │ │
+│   │                                                                   │ │
+│   │   Features: Unreliable, unordered, connectionless, faster       │ │
+│   │   Use for: Video streaming, gaming, DNS, VoIP                   │ │
+│   │                                                                   │ │
+│   └──────────────────────────────────────────────────────────────────┘ │
+│                                                                          │
+│   Comparison:                                                           │
+│   ┌──────────────┬──────────────────┬─────────────────────┐            │
+│   │   Feature    │       TCP        │        UDP          │            │
+│   ├──────────────┼──────────────────┼─────────────────────┤            │
+│   │ Connection   │ Required         │ Not required        │            │
+│   │ Reliability  │ Guaranteed       │ Best effort         │            │
+│   │ Ordering     │ Guaranteed       │ Not guaranteed      │            │
+│   │ Speed        │ Slower           │ Faster              │            │
+│   │ Overhead     │ Higher           │ Lower               │            │
+│   │ Use case     │ File transfer    │ Live streaming      │            │
+│   └──────────────┴──────────────────┴─────────────────────┘            │
+│                                                                          │
+└─────────────────────────────────────────────────────────────────────────┘
+```
 
 ## Code Examples
 
@@ -989,42 +1210,141 @@ if (Files.exists(path)) { ... }
 
 ---
 
-## 12) Interview Questions
+## 12) Interview Questions with Answers
 
 ### Streams and I/O
-1. What is the difference between byte streams and character streams?
-2. Why do we need `BufferedInputStream`/`BufferedOutputStream`?
-3. What is the decorator pattern in Java I/O?
-4. What is the difference between `FileReader` and `InputStreamReader`?
-5. How do you ensure a stream is always closed?
+
+**1. What is the difference between byte streams and character streams?**
+- **Byte streams** (`InputStream`/`OutputStream`): Handle raw binary data (8-bit bytes). Use for images, audio, any binary file.
+- **Character streams** (`Reader`/`Writer`): Handle text with character encoding (16-bit Unicode). Use for text files.
+- Character streams internally use byte streams with encoding conversion.
+
+**2. Why do we need BufferedInputStream/BufferedOutputStream?**
+- Without buffering: Each `read()` or `write()` call may trigger a system call (expensive).
+- With buffering: Data is read/written in larger chunks to internal buffer.
+- Result: Dramatically better performance (10-100x faster for file I/O).
+- Default buffer size is 8KB.
+
+**3. What is the decorator pattern in Java I/O?**
+- Wrapping streams to add functionality without subclassing.
+- Example: `new BufferedInputStream(new FileInputStream("file.txt"))`
+- Each wrapper adds a capability: buffering, data types, encryption, etc.
+- Enables flexible composition of features.
+
+**4. How do you ensure a stream is always closed?**
+```java
+// Use try-with-resources (Java 7+)
+try (InputStream is = new FileInputStream("file.txt")) {
+    // Use stream
+}  // Automatically closed, even if exception occurs
+```
 
 ### NIO and NIO.2
-6. What is the difference between `java.io` and `java.nio`?
-7. Explain Buffer operations: `flip()`, `clear()`, `compact()`.
-8. What is a `FileChannel`? When would you use it?
-9. What is a memory-mapped file? What are its benefits?
-10. How does `Files.walk()` differ from `Files.list()`?
+
+**5. What is the difference between java.io and java.nio?**
+| java.io | java.nio |
+|---------|----------|
+| Stream-based | Buffer/Channel-based |
+| Blocking only | Non-blocking possible |
+| Sequential access | Random access |
+| One direction | Bidirectional channels |
+| Simpler API | More efficient for large data |
+
+**6. Explain Buffer operations: flip(), clear(), compact().**
+- `flip()`: Prepares buffer for reading. Sets `limit = position`, `position = 0`.
+- `clear()`: Prepares buffer for writing. Sets `position = 0`, `limit = capacity`. Data still there!
+- `compact()`: Moves unread data to start, prepares for writing after that.
+
+**7. What is a memory-mapped file? Benefits?**
+- File mapped directly into memory via `FileChannel.map()`.
+- Benefits:
+  - Very fast for large files (OS handles paging)
+  - Random access without seeking
+  - Shared between processes
+  - Avoids copy between kernel and user space
+
+**8. How does Files.walk() differ from Files.list()?**
+- `Files.list(dir)`: Lists only direct children of directory.
+- `Files.walk(dir)`: Recursively walks entire directory tree.
+- Both return `Stream<Path>` and should be closed.
 
 ### Serialization
-11. What is `Serializable`? What is `serialVersionUID`?
-12. What does `transient` keyword do?
-13. How would you customize serialization?
-14. What are the security concerns with Java serialization?
-15. What is `Externalizable` vs `Serializable`?
+
+**9. What is serialVersionUID and why is it important?**
+- Unique identifier for serialized class version.
+- Used during deserialization to verify sender and receiver have compatible classes.
+- If not declared explicitly, JVM generates one (changes if class changes = breaks deserialization).
+- Best practice: Always declare explicitly: `private static final long serialVersionUID = 1L;`
+
+**10. What does transient keyword do?**
+- Marks a field to be excluded from serialization.
+- Field is not saved when object is serialized.
+- On deserialization, field gets default value (null, 0, false).
+- Use for: Sensitive data, derived fields, non-serializable fields.
+
+**11. What are security concerns with Java serialization?**
+- Deserialization can execute arbitrary code (gadget chains).
+- Can be used for remote code execution attacks.
+- Mitigation: Validate input, use serialization filters, prefer JSON/Protocol Buffers.
 
 ### Networking
-16. What is the difference between TCP and UDP?
-17. Explain how `Socket` and `ServerSocket` work.
-18. What is a `Selector` in NIO? When would you use it?
-19. What is non-blocking I/O? How does it differ from blocking I/O?
-20. How does `HttpClient` (Java 11+) differ from `HttpURLConnection`?
+
+**12. What is the difference between TCP and UDP?**
+| TCP | UDP |
+|-----|-----|
+| Connection-oriented | Connectionless |
+| Reliable delivery | Best-effort delivery |
+| Ordered packets | No ordering guarantee |
+| Flow control | No flow control |
+| Slower | Faster |
+| Use: HTTP, SSH, email | Use: Video, gaming, DNS |
+
+**13. What is a Selector in NIO? When would you use it?**
+- Multiplexer that monitors multiple channels for I/O readiness.
+- One thread can handle thousands of connections.
+- Use when building scalable servers (web servers, chat servers).
+- Channels must be in non-blocking mode to register with selector.
+
+**14. What is non-blocking I/O? How does it differ from blocking I/O?**
+- **Blocking**: Thread waits until data available. Simple but wastes threads.
+- **Non-blocking**: Thread checks and returns immediately. Efficient but complex.
+- Non-blocking enables single thread to handle many connections (with Selector).
+
+**15. How does HttpClient (Java 11+) differ from HttpURLConnection?**
+- `HttpClient`: Modern, async support, HTTP/2, cleaner API, immutable.
+- `HttpURLConnection`: Legacy, sync only, HTTP/1.1, verbose API.
+```java
+// HttpClient (modern)
+HttpClient client = HttpClient.newHttpClient();
+HttpRequest request = HttpRequest.newBuilder()
+    .uri(URI.create("https://example.com"))
+    .build();
+HttpResponse<String> response = client.send(request, 
+    HttpResponse.BodyHandlers.ofString());
+```
 
 ### Best Practices
-21. Why should you always specify character encoding?
-22. What are resource leaks? How do you prevent them?
-23. When would you use direct buffers vs heap buffers?
-24. How do you efficiently copy large files in Java?
-25. What is try-with-resources and how does it work?
+
+**16. Why should you always specify character encoding?**
+- Default encoding is platform-dependent (Windows: CP1252, Linux: UTF-8).
+- Code works on one machine, fails on another.
+- Always use `StandardCharsets.UTF_8` explicitly.
+
+**17. When would you use direct buffers vs heap buffers?**
+- **Heap buffer** (`ByteBuffer.allocate()`): Easier GC, good for small/short-lived buffers.
+- **Direct buffer** (`ByteBuffer.allocateDirect()`): Faster I/O (no copy to native), expensive to create.
+- Use direct for: Large buffers, long-lived buffers, heavy I/O.
+
+**18. How do you efficiently copy large files?**
+```java
+// Best: FileChannel.transferTo (zero-copy when possible)
+try (FileChannel src = FileChannel.open(source, READ);
+     FileChannel dest = FileChannel.open(target, WRITE, CREATE)) {
+    src.transferTo(0, src.size(), dest);
+}
+// Simple: Files.copy
+Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
+```
 
 ---
 
