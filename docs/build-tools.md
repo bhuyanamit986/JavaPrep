@@ -2,6 +2,49 @@
 
 Understanding build tools is essential for Java development. This guide covers Maven and Gradle—the two dominant build tools in the Java ecosystem.
 
+## Definitions
+
+- **Build tool**: automates compiling, testing, packaging, and running your project.
+- **Dependency**: an external library your code relies on.
+- **Repository**: a storage location for dependencies (e.g., Maven Central).
+- **Lifecycle**: a sequence of build phases (e.g., compile -> test -> package).
+- **Plugin**: an extension that adds build steps or capabilities.
+- **BOM (Bill of Materials)**: a POM that centralizes dependency versions.
+
+## Illustrations
+
+- **Build tool**: like a recipe that always produces the same dish.
+- **Dependency tree**: a family tree where each library brings its own relatives.
+- **Lifecycle**: an assembly line where each station performs a specific step.
+
+## Code Examples
+
+```xml
+<!-- Minimal Maven pom.xml -->
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.example</groupId>
+  <artifactId>app</artifactId>
+  <version>1.0.0</version>
+</project>
+```
+
+```groovy
+// Minimal Gradle build.gradle
+plugins { id 'java' }
+group = 'com.example'
+version = '1.0.0'
+```
+
+## Interview Questions
+
+1. What problems do build tools solve?
+2. Explain Maven's lifecycle phases.
+3. What is a BOM and why use it?
+4. How does Gradle differ from Maven?
+5. What is dependency conflict resolution?
+6. How do you make builds reproducible?
+
 ---
 
 ## 1) Build Tools Overview

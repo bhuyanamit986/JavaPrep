@@ -2,6 +2,38 @@
 
 Java provides multiple APIs for input/output operations. This guide covers traditional I/O, modern NIO.2, and networking fundamentals commonly asked in interviews.
 
+## Definitions
+
+- **Stream**: a sequential flow of bytes or characters (read or write).
+- **Byte vs character streams**: bytes handle raw binary; characters handle text with encoding.
+- **Buffer**: a fixed-size container that data is read into or written from.
+- **Channel**: a bidirectional I/O connection used in NIO.
+- **Blocking vs non-blocking**: blocking waits for data; non-blocking returns immediately.
+- **Selector**: watches multiple channels and tells you which are ready for I/O.
+- **Socket**: an endpoint for network communication.
+
+## Illustrations
+
+- **Stream**: like water flowing through a pipe from a source to a sink.
+- **Buffer**: a bucket you fill before pouring into another container.
+- **Selector**: a receptionist who tells you which phone lines have callers waiting.
+
+## Code Examples
+
+```java
+java.nio.file.Path path = java.nio.file.Path.of("notes.txt");
+String content = java.nio.file.Files.readString(path);
+System.out.println(content);
+```
+
+## Interview Questions
+
+1. When would you choose byte streams vs character streams?
+2. How do channels and buffers differ from classic streams?
+3. What does non-blocking I/O enable?
+4. What is a selector used for?
+5. Explain a simple TCP client-server flow.
+
 ---
 
 ## 1) Java I/O Overview

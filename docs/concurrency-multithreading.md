@@ -2,6 +2,42 @@
 
 Concurrency is one of the **most heavily tested topics** in Java interviews. This guide covers everything from thread fundamentals to advanced concurrent utilities.
 
+## Definitions
+
+- **Thread**: the smallest unit of execution within a process.
+- **Concurrency vs parallelism**: concurrency is managing multiple tasks; parallelism is running tasks at the same time.
+- **Race condition**: incorrect behavior due to unsynchronized access to shared state.
+- **Synchronization**: coordination that makes access to shared state safe (e.g., `synchronized`, locks).
+- **Deadlock**: two or more threads waiting forever on each other’s locks.
+- **Volatile**: a visibility guarantee for a variable across threads (not atomicity for compound actions).
+- **Happens-before**: a formal rule defining visibility and ordering in the Java Memory Model.
+- **Executor**: a higher-level API for managing thread pools and task execution.
+
+## Illustrations
+
+- **Race condition**: two clerks update the same bank balance at the same time and lose one update.
+- **Deadlock**: two people each hold one key and refuse to release until they get the other.
+- **Volatile**: a shared "status board" that always shows the latest posted value.
+
+## Code Examples
+
+```java
+class Counter {
+    private int value = 0;
+    synchronized void inc() { value++; }
+    synchronized int get() { return value; }
+}
+```
+
+## Interview Questions
+
+1. What is the difference between concurrency and parallelism?
+2. What does `volatile` guarantee, and what does it not guarantee?
+3. How can a deadlock happen, and how do you prevent it?
+4. When would you use `synchronized` vs `Lock`?
+5. What is the difference between `Runnable` and `Callable`?
+6. Why use `ExecutorService` instead of creating threads manually?
+
 ---
 
 ## 1) Threads Fundamentals

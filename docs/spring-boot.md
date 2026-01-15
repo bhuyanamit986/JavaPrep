@@ -2,6 +2,43 @@
 
 Spring is the most popular Java enterprise framework. This guide covers core Spring concepts and Spring Boot, which is frequently tested in Java interviews.
 
+## Definitions
+
+- **IoC (Inversion of Control)**: the framework manages object creation and wiring.
+- **DI (Dependency Injection)**: dependencies are provided to a class instead of created inside it.
+- **Bean**: a managed object in the Spring application context.
+- **ApplicationContext**: the container that holds beans and configuration.
+- **Auto-configuration**: Spring Boot feature that configures beans based on classpath and properties.
+- **Component scanning**: automatic discovery of classes annotated with `@Component` and friends.
+- **Starter**: a curated dependency set that pulls in common libraries.
+- **Transaction**: a unit of work that must fully succeed or fully fail.
+
+## Illustrations
+
+- **Container**: like a restaurant kitchen that prepares and wires ingredients for you.
+- **Auto-configuration**: a "starter kit" that sets up defaults so you can start quickly.
+- **DI**: swapping a power adapter rather than rewiring a device.
+
+## Code Examples
+
+```java
+@org.springframework.web.bind.annotation.RestController
+class HelloController {
+    @org.springframework.web.bind.annotation.GetMapping("/hello")
+    String hello() {
+        return "hello";
+    }
+}
+```
+
+## Interview Questions
+
+1. What is the difference between IoC and DI?
+2. How does component scanning work?
+3. What does Spring Boot auto-configuration do?
+4. What is the lifecycle of a Spring bean?
+5. How do transactions work in Spring?
+
 ---
 
 ## 1) Spring Core Concepts

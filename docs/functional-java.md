@@ -9,6 +9,42 @@ Java is multi-paradigm. Functional-style code in Java relies on:
 
 This chapter focuses on the language features and correctness/performance pitfalls interviewers probe.
 
+## Definitions
+
+- **Functional interface**: an interface with exactly one abstract method (SAM).
+- **Lambda**: an inline function implementation that can be passed as a value.
+- **Method reference**: shorthand for a lambda that simply calls a method.
+- **Effectively final**: a local variable that is not reassigned, so it can be captured in a lambda.
+- **Higher-order function**: a method that accepts a function or returns a function.
+- **Side effects**: observable changes outside a function (e.g., mutating state, I/O).
+
+## Illustrations
+
+- **Lambda**: like writing a tiny unnamed function on a sticky note and handing it to an API.
+- **Method reference**: pointing at an existing method instead of rewriting it.
+- **Effectively final**: a snapshot of a variable captured at the moment the lambda is created.
+
+## Code Examples
+
+```java
+java.util.List<String> names = java.util.List.of("Ann", "", "Bob");
+
+java.util.List<String> cleaned = names.stream()
+    .filter(s -> !s.isBlank())
+    .map(String::trim)
+    .toList();
+```
+
+## Interview Questions
+
+1. What makes an interface "functional"?
+2. Why must captured variables be effectively final?
+3. How do lambdas differ from anonymous inner classes?
+4. When should you avoid side effects in lambdas?
+5. Explain method references and their common forms.
+
+---
+
 ## 1) Lambdas and functional interfaces
 
 ### Functional interface

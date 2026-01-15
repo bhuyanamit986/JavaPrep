@@ -2,6 +2,43 @@
 
 Design patterns are reusable solutions to common software design problems. This guide covers patterns most frequently asked in Java interviews, with practical examples and real-world use cases.
 
+## Definitions
+
+- **Design pattern**: a proven template for solving a recurring design problem.
+- **Creational pattern**: focuses on object creation (e.g., Singleton, Factory, Builder).
+- **Structural pattern**: focuses on object composition (e.g., Adapter, Decorator).
+- **Behavioral pattern**: focuses on object interaction (e.g., Strategy, Observer).
+- **Singleton**: ensures one instance with global access (use carefully).
+- **Strategy**: swaps behavior at runtime via composition.
+
+## Illustrations
+
+- **Factory**: ordering a product from a menu instead of assembling it yourself.
+- **Strategy**: choosing different routes (fastest, cheapest) for the same trip.
+- **Observer**: subscribing to updates and getting notified when something changes.
+
+## Code Examples
+
+```java
+interface Formatter { String format(String s); }
+class UpperCase implements Formatter {
+    public String format(String s) { return s.toUpperCase(); }
+}
+class Printer {
+    private final Formatter formatter;
+    Printer(Formatter formatter) { this.formatter = formatter; }
+    String print(String s) { return formatter.format(s); }
+}
+```
+
+## Interview Questions
+
+1. What problem does the Singleton pattern solve, and what are its risks?
+2. When would you pick Strategy over inheritance?
+3. Explain the difference between Factory and Builder.
+4. How does Decorator differ from Proxy?
+5. Give a real example of Observer in Java.
+
 ---
 
 ## 1) Pattern Categories

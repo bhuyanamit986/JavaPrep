@@ -1,5 +1,54 @@
 # OOP + SOLID (Interview-Focused)
 
+## Definitions
+
+- **Encapsulation**: hide internal state and expose safe operations that protect invariants.
+- **Abstraction**: show essential behavior while hiding unnecessary detail behind interfaces or abstract classes.
+- **Inheritance**: an "is-a" relationship that enables reuse and polymorphism through subtype substitution.
+- **Polymorphism**: calling the same method on different types and getting type-specific behavior (dynamic dispatch).
+- **Composition**: building behavior by combining smaller objects instead of inheriting from a base class.
+- **Interface vs abstract class**: interfaces define capabilities; abstract classes share common state/implementation.
+- **SOLID**: SRP (one reason to change), OCP (extend without modifying), LSP (subtypes must be substitutable),
+  ISP (small focused interfaces), DIP (depend on abstractions, not concretions).
+
+## Illustrations
+
+- **Composition**: a `Car` has an `Engine` (swappable), rather than `Car` extending `Engine`.
+- **Interface**: a remote control works with any TV brand because it depends on the TV "interface", not the model.
+- **LSP pitfall**: a `Square` that inherits from `Rectangle` breaks expectations when width/height are set independently.
+- **DIP**: a service depends on a `PaymentGateway` interface; the concrete `StripeGateway` can be swapped in tests.
+
+## Code Examples
+
+```java
+interface DiscountStrategy {
+    double apply(double total);
+}
+
+class PercentageDiscount implements DiscountStrategy {
+    private final double percent;
+    PercentageDiscount(double percent) { this.percent = percent; }
+    public double apply(double total) { return total * (1 - percent); }
+}
+
+class Cart {
+    private DiscountStrategy strategy;
+    Cart(DiscountStrategy strategy) { this.strategy = strategy; }
+    double checkout(double total) { return strategy.apply(total); }
+}
+```
+
+## Interview Questions
+
+1. Explain encapsulation beyond getters and setters.
+2. When do you prefer composition over inheritance?
+3. Interface vs abstract class - how do you choose?
+4. Give a real example of violating LSP.
+5. What does DIP mean in a layered architecture?
+6. How do SOLID principles reduce change risk?
+
+---
+
 ## 1) OOP pillars
 
 ### Encapsulation
