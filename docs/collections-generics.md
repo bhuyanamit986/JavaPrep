@@ -1,5 +1,49 @@
 # Collections & Generics (Deep Interview Coverage)
 
+## Definitions
+
+- **Collection**: a container of elements with a common API for add/remove/iterate.
+- **List**: ordered collection that allows duplicates and index-based access.
+- **Set**: collection that enforces uniqueness based on `equals()` and `hashCode()`.
+- **Map**: key-to-value structure; keys are unique and not part of `Collection`.
+- **Big-O**: how performance grows as data size grows (e.g., `ArrayList` get is O(1)).
+- **Generics**: compile-time type safety for containers and APIs.
+- **Variance**: how subtyping works with generics (`extends` for producer, `super` for consumer).
+- **Type erasure**: generic type info is removed at runtime; only compile-time checks remain.
+
+## Illustrations
+
+- **List**: an ordered notebook where each page number is an index.
+- **Set**: a stamp collection where duplicates are rejected.
+- **Map**: a phone book where each name maps to a phone number.
+- **Wildcards**: `List<? extends Number>` is like a read-only view of numbers; you can read, not safely write.
+
+## Code Examples
+
+```java
+static double sumNumbers(java.util.List<? extends Number> nums) {
+    double sum = 0;
+    for (Number n : nums) sum += n.doubleValue();
+    return sum;
+}
+
+static void addIntegers(java.util.List<? super Integer> dest) {
+    dest.add(1);
+    dest.add(2);
+}
+```
+
+## Interview Questions
+
+1. When do you use `ArrayList` vs `LinkedList`?
+2. Why must `equals()` and `hashCode()` be consistent for `HashSet`?
+3. Explain `List<? extends T>` vs `List<? super T>`.
+4. What is type erasure and why does it matter?
+5. What is the difference between `HashMap` and `TreeMap`?
+6. What does "fail-fast iterator" mean?
+
+---
+
 ## 1) Collections framework overview
 
 Core interfaces:

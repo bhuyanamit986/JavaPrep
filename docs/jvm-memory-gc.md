@@ -2,6 +2,39 @@
 
 Understanding the JVM internals is crucial for Java interviews—especially for senior positions. This guide covers memory architecture, class loading, and garbage collection.
 
+## Definitions
+
+- **JVM**: the runtime that executes Java bytecode and manages memory, threads, and execution.
+- **Class loader**: component that loads classes into the JVM (loading, linking, initialization).
+- **Heap vs stack**: heap stores objects shared across threads; stack stores per-thread call frames.
+- **Garbage collection (GC)**: automatic memory reclamation for unreachable objects.
+- **Generational GC**: strategy that treats young and old objects differently to optimize collection.
+- **JIT compiler**: runtime compiler that optimizes "hot" bytecode into native code.
+- **Metaspace**: native memory area where class metadata is stored (replaces PermGen).
+
+## Illustrations
+
+- **Stack frames**: like a stack of plates; each method call adds a plate, returns remove it.
+- **Young vs old generation**: a nursery for short-lived objects and a retirement home for long-lived ones.
+- **GC**: a cleaning crew that clears empty rooms so new guests can move in.
+
+## Code Examples
+
+```java
+Runtime rt = Runtime.getRuntime();
+long used = rt.totalMemory() - rt.freeMemory();
+System.out.println("Used memory bytes: " + used);
+```
+
+## Interview Questions
+
+1. What is stored on the heap vs the stack?
+2. What is the role of the class loader?
+3. Why do generational collectors work well in practice?
+4. What is a stop-the-world pause?
+5. How does JIT compilation improve performance?
+6. What causes memory leaks in Java?
+
 ---
 
 ## 1) JVM Architecture Overview

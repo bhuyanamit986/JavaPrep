@@ -2,6 +2,36 @@
 
 Quick reference cards for rapid review before your Java interview.
 
+## Definitions
+
+- **Cheat sheet**: a compact summary of high-frequency facts and APIs.
+- **Last-minute revision**: focused review to refresh recall, not to learn from scratch.
+- **Recall cue**: a short prompt that helps you remember a concept quickly.
+- **High-signal topic**: a topic that appears frequently in interviews (collections, concurrency, JVM).
+
+## Illustrations
+
+- **Flashcard mindset**: read a prompt, try to answer from memory, then verify.
+- **Time-boxing**: spend 10-15 minutes per section to refresh key facts.
+- **Layered review**: start with essentials, then skim deeper sections if time allows.
+
+## Code Examples
+
+```java
+// Quick recall: map + filter with streams
+java.util.List<Integer> evens = java.util.List.of(1, 2, 3, 4).stream()
+    .filter(n -> n % 2 == 0)
+    .toList();
+```
+
+## Interview Questions
+
+1. What is the difference between `==` and `equals()`?
+2. What are the default values of primitive types?
+3. What is the difference between `HashMap` and `HashSet`?
+4. What does `volatile` guarantee?
+5. What is the purpose of a unit test?
+
 ---
 
 ## 1) Core Java Essentials

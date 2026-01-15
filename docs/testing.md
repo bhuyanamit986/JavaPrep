@@ -2,6 +2,37 @@
 
 Testing is fundamental to software quality. This guide covers testing concepts, JUnit, mocking, and best practices commonly asked in Java interviews.
 
+## Definitions
+
+- **Unit test**: verifies a single unit (method/class) in isolation.
+- **Integration test**: verifies interactions between components (e.g., DB + service).
+- **End-to-end test**: validates full user flows through the system.
+- **Mock**: a test double that simulates behavior and verifies interactions.
+- **Test pyramid**: a strategy favoring many unit tests, fewer integration tests, and few E2E tests.
+- **TDD**: write a failing test, write code to pass, then refactor.
+
+## Illustrations
+
+- **Mock**: a stunt double that stands in for a real actor during risky scenes.
+- **Test pyramid**: fast unit tests form the wide base; slow E2E tests are the narrow top.
+
+## Code Examples
+
+```java
+@org.junit.jupiter.api.Test
+void addsNumbers() {
+    org.junit.jupiter.api.Assertions.assertEquals(5, 2 + 3);
+}
+```
+
+## Interview Questions
+
+1. What is the difference between unit and integration tests?
+2. Why do we prefer a testing pyramid?
+3. When is mocking appropriate vs not appropriate?
+4. What does TDD buy you in a team setting?
+5. How do you test time or randomness in code?
+
 ---
 
 ## 1) Testing Fundamentals

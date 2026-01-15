@@ -8,6 +8,37 @@ Streams are a **declarative, functional** way to process data. Interviewers care
 - short-circuiting
 - parallel streams trade-offs
 
+## Definitions
+
+- **Stream pipeline**: a chain of operations with a source, intermediate steps, and a terminal operation.
+- **Intermediate operation**: lazy transformation like `map`, `filter`, or `sorted`.
+- **Terminal operation**: consumes the stream and produces a result like `collect`, `count`, or `reduce`.
+- **Collector**: a strategy for accumulating stream elements into a container or value.
+- **Short-circuiting**: an operation that can finish early (e.g., `findFirst`, `anyMatch`).
+- **Parallel stream**: a stream that may process elements concurrently using the common ForkJoinPool.
+
+## Illustrations
+
+- **Pipeline**: like an assembly line - each station transforms items, the final station produces output.
+- **Laziness**: work is delayed until you ask for a final result (terminal op).
+- **Parallelism**: multiple workers can speed up large, independent tasks, but coordination has overhead.
+
+## Code Examples
+
+```java
+java.util.Map<String, Long> counts = java.util.List.of("a", "b", "a").stream()
+    .collect(java.util.stream.Collectors.groupingBy(s -> s, java.util.stream.Collectors.counting()));
+```
+
+## Interview Questions
+
+1. What is the difference between intermediate and terminal operations?
+2. Why are streams single-use?
+3. When should you avoid parallel streams?
+4. How does `collect` differ from `reduce`?
+5. What does short-circuiting mean in a stream pipeline?
+
+---
 ## 1) Stream pipeline model
 
 A stream pipeline typically looks like:

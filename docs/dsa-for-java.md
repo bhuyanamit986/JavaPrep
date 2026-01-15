@@ -2,6 +2,47 @@
 
 This guide covers data structures and algorithms commonly asked in Java interviews, with Java-specific implementations and patterns.
 
+## Definitions
+
+- **Big-O**: describes how runtime or space grows as input size grows.
+- **Array**: contiguous memory, fast indexing, expensive mid inserts.
+- **Linked list**: nodes linked by pointers, fast inserts, slow random access.
+- **Stack**: LIFO structure (push/pop).
+- **Queue**: FIFO structure (offer/poll).
+- **Hash map**: key-value store with average O(1) lookup.
+- **Tree**: hierarchical structure (e.g., binary tree, heap).
+- **Graph**: nodes connected by edges (directed or undirected).
+
+## Illustrations
+
+- **Stack**: a pile of plates - last added is first removed.
+- **Queue**: a checkout line - first in is first out.
+- **Hash map**: an index in a book that jumps to the right page quickly.
+- **Tree**: a family tree where each node has children.
+
+## Code Examples
+
+```java
+int binarySearch(int[] arr, int target) {
+    int lo = 0, hi = arr.length - 1;
+    while (lo <= hi) {
+        int mid = lo + (hi - lo) / 2;
+        if (arr[mid] == target) return mid;
+        if (arr[mid] < target) lo = mid + 1;
+        else hi = mid - 1;
+    }
+    return -1;
+}
+```
+
+## Interview Questions
+
+1. Explain the difference between O(n) and O(n log n).
+2. When would you use a stack vs a queue?
+3. Why are hash maps O(1) on average but not worst-case?
+4. How do BFS and DFS differ?
+5. What is the difference between a heap and a BST?
+
 ---
 
 ## 1) Big-O Complexity

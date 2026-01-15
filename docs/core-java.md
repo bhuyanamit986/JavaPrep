@@ -1,5 +1,47 @@
 # Core Java Fundamentals
 
+## Definitions
+
+- **Compilation model**: Java source compiles to bytecode, and the JVM interprets or JIT-compiles that bytecode at runtime.
+- **Primitive vs reference**: primitives store raw values; references store a pointer to an object on the heap.
+- **Pass-by-value**: Java always passes a copy of the value; for objects the copied value is the reference.
+- **Immutability**: an immutable object cannot change state after creation (e.g., `String`), which improves safety and sharing.
+- **Equality contract**: `equals()` defines logical equality, and `hashCode()` must be consistent with it for hash collections.
+- **Ordering**: `Comparable` defines a natural order; `Comparator` defines an external order and can be composed.
+- **`static`/`final`**: `static` belongs to the class, not instances; `final` prevents reassignment (but not necessarily mutation).
+- **Records / enums / sealed classes**: records are concise data carriers, enums model fixed sets, and sealed classes restrict inheritance.
+
+## Illustrations
+
+- **Pass-by-value**: you give someone a copy of a house address. They can enter the same house (mutate the object), but changing the copy does not move your address.
+- **String pool**: like a shared dictionary where identical literals reuse the same stored entry to save memory.
+- **`equals` + `hashCode`**: think of `hashCode` as a neighborhood and `equals` as the exact house check; both are needed to find the right object.
+- **`static` vs instance**: a `static` field is a shared billboard for the class, while instance fields are personal notebooks for each object.
+
+## Code Examples
+
+```java
+static void update(StringBuilder sb) {
+    sb.append("x"); // mutates shared object
+    sb = new StringBuilder("new"); // rebinds local copy only
+}
+
+static boolean safeEquals(Object a, Object b) {
+    return java.util.Objects.equals(a, b);
+}
+```
+
+## Interview Questions
+
+1. Why is Java considered pass-by-value? Show with an object example.
+2. What problems happen if `equals()` and `hashCode()` are inconsistent?
+3. Why is `String` immutable and what is the String pool?
+4. `Comparable` vs `Comparator`: when do you use each?
+5. What is the difference between `static`, `final`, and `static final`?
+6. What are records and sealed classes, and when would you use them?
+
+---
+
 ## 1) Java compilation model (high level)
 
 - **Source (`.java`) → bytecode (`.class`) → JVM execution**.

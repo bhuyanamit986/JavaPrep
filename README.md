@@ -6,7 +6,7 @@ This repository is a structured, detailed preparation guide for **cracking Java 
 
 - Start with the **Study plan** below if you’re new or rusty.
 - Use the **Table of Contents** to jump to topics.
-- Each chapter includes: explanations, common pitfalls, interview questions, and code examples.
+- Each chapter includes: definitions, illustrations, detailed explanations, code examples, and interview questions.
 
 ## Study plan (suggested)
 
