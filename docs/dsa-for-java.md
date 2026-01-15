@@ -4,21 +4,270 @@ This guide covers data structures and algorithms commonly asked in Java intervie
 
 ## Definitions
 
-- **Big-O**: describes how runtime or space grows as input size grows.
-- **Array**: contiguous memory, fast indexing, expensive mid inserts.
-- **Linked list**: nodes linked by pointers, fast inserts, slow random access.
-- **Stack**: LIFO structure (push/pop).
-- **Queue**: FIFO structure (offer/poll).
-- **Hash map**: key-value store with average O(1) lookup.
-- **Tree**: hierarchical structure (e.g., binary tree, heap).
-- **Graph**: nodes connected by edges (directed or undirected).
+- **Big-O Notation**: Describes how algorithm performance scales with input size. Focuses on worst-case and ignores constants.
+
+- **Array**: Contiguous memory, O(1) random access by index. Fixed size in Java. Expensive insertions/deletions in middle.
+
+- **Linked List**: Nodes connected by pointers. O(1) insert/delete at known positions. O(n) random access.
+
+- **Stack**: LIFO (Last In First Out). Push to top, pop from top. Use `Deque<>` in Java.
+
+- **Queue**: FIFO (First In First Out). Add to back, remove from front. Use `Queue<>` or `Deque<>`.
+
+- **HashMap**: Key-value store with O(1) average lookup using hash function. Keys must implement `hashCode()` and `equals()`.
+
+- **Tree**: Hierarchical structure with root, parent, and child nodes. Binary tree has max 2 children per node.
+
+- **Binary Search Tree (BST)**: Binary tree where left < root < right. O(log n) operations when balanced.
+
+- **Heap**: Complete binary tree satisfying heap property. Min-heap: parent ≤ children. Max-heap: parent ≥ children.
+
+- **Graph**: Nodes (vertices) connected by edges. Can be directed/undirected, weighted/unweighted.
+
+- **BFS (Breadth-First Search)**: Explores level by level using a queue. Good for shortest path in unweighted graphs.
+
+- **DFS (Depth-First Search)**: Explores as far as possible before backtracking. Uses stack or recursion.
+
+- **Dynamic Programming**: Solves complex problems by breaking into overlapping subproblems. Memoization or tabulation.
 
 ## Illustrations
 
-- **Stack**: a pile of plates - last added is first removed.
-- **Queue**: a checkout line - first in is first out.
-- **Hash map**: an index in a book that jumps to the right page quickly.
-- **Tree**: a family tree where each node has children.
+### Big-O Complexity Visualization
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                    BIG-O COMPLEXITY COMPARISON                           │
+│                                                                          │
+│   Time ▲                                                                │
+│        │                                              O(n!)             │
+│        │                                          ↗                     │
+│        │                                      O(2ⁿ)                     │
+│        │                                   ↗                            │
+│        │                              O(n²)                             │
+│        │                          ↗                                     │
+│        │                    O(n log n)                                  │
+│        │                 ↗                                              │
+│        │            O(n)                                                │
+│        │         ↗                                                      │
+│        │     O(log n)                                                   │
+│        │   ↗                                                            │
+│        │ O(1) ─────────────────────────────────────────────────        │
+│        └───────────────────────────────────────────────────────▶       │
+│                              Input Size (n)                             │
+│                                                                          │
+│   Best → Worst:  O(1) < O(log n) < O(n) < O(n log n) < O(n²) < O(2ⁿ)   │
+│                                                                          │
+│   O(1)      - HashMap get/put                                           │
+│   O(log n)  - Binary search, BST operations                             │
+│   O(n)      - Linear search, single loop                                │
+│   O(n log n)- Merge sort, heap sort, efficient sorting                  │
+│   O(n²)     - Bubble sort, nested loops                                 │
+│   O(2ⁿ)     - Recursive Fibonacci, subset generation                    │
+│                                                                          │
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
+### Common Data Structures
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                      ARRAY vs LINKED LIST                                │
+│                                                                          │
+│   ARRAY (Contiguous Memory):                                            │
+│   ┌─────┬─────┬─────┬─────┬─────┬─────┬─────┐                           │
+│   │  0  │  1  │  2  │  3  │  4  │  5  │  6  │  Index                    │
+│   ├─────┼─────┼─────┼─────┼─────┼─────┼─────┤                           │
+│   │ 10  │ 20  │ 30  │ 40  │ 50  │ 60  │ 70  │  Values                   │
+│   └─────┴─────┴─────┴─────┴─────┴─────┴─────┘                           │
+│   ✓ O(1) access by index    ✗ O(n) insert/delete in middle             │
+│                                                                          │
+│   LINKED LIST (Scattered Memory):                                       │
+│   ┌────────┐    ┌────────┐    ┌────────┐    ┌────────┐                  │
+│   │ 10 | ●─┼───▶│ 20 | ●─┼───▶│ 30 | ●─┼───▶│ 40 |null│                 │
+│   └────────┘    └────────┘    └────────┘    └────────┘                  │
+│   ✓ O(1) insert/delete (if you have node reference)                     │
+│   ✗ O(n) access by index (must traverse)                                │
+│                                                                          │
+└─────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────┐
+│                      STACK vs QUEUE                                      │
+│                                                                          │
+│   STACK (LIFO - Last In First Out):                                     │
+│   ┌───────┐                                                             │
+│   │   4   │ ← top (push/pop here)                                       │
+│   ├───────┤                                                             │
+│   │   3   │                                                             │
+│   ├───────┤    push(5):  [1,2,3,4] → [1,2,3,4,5]                        │
+│   │   2   │    pop():    [1,2,3,4] → [1,2,3] returns 4                  │
+│   ├───────┤                                                             │
+│   │   1   │                                                             │
+│   └───────┘    Use cases: Undo, DFS, expression evaluation              │
+│                                                                          │
+│   QUEUE (FIFO - First In First Out):                                    │
+│   ┌───┬───┬───┬───┐                                                     │
+│   │ 1 │ 2 │ 3 │ 4 │                                                     │
+│   └───┴───┴───┴───┘                                                     │
+│     ↑           ↑                                                       │
+│   front       back                                                      │
+│   (poll)     (offer)                                                    │
+│                                                                          │
+│   offer(5):  [1,2,3,4] → [1,2,3,4,5]                                    │
+│   poll():    [1,2,3,4] → [2,3,4] returns 1                              │
+│                                                                          │
+│   Use cases: BFS, task scheduling, buffering                            │
+│                                                                          │
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
+### Tree Structures
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                    BINARY SEARCH TREE (BST)                              │
+│                                                                          │
+│   Property: Left < Root < Right                                         │
+│                                                                          │
+│                         8                                               │
+│                       /   \                                             │
+│                      3     10                                           │
+│                    /   \      \                                         │
+│                   1     6      14                                       │
+│                       /   \   /                                         │
+│                      4     7 13                                         │
+│                                                                          │
+│   Inorder traversal: 1, 3, 4, 6, 7, 8, 10, 13, 14 (sorted!)            │
+│                                                                          │
+│   Operations (balanced):  O(log n)                                      │
+│   Operations (skewed):    O(n)  ← degenerate to linked list            │
+│                                                                          │
+└─────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────┐
+│                         HEAP (Min-Heap)                                  │
+│                                                                          │
+│   Property: Parent ≤ Children (min-heap)                                │
+│   Structure: Complete binary tree (filled level by level, left to right)│
+│                                                                          │
+│                         1                                               │
+│                       /   \                                             │
+│                      3     2                                            │
+│                    /   \  / \                                           │
+│                   5    4 6   7                                          │
+│                                                                          │
+│   Array representation: [1, 3, 2, 5, 4, 6, 7]                          │
+│   Index math: parent(i) = (i-1)/2                                       │
+│               leftChild(i) = 2*i + 1                                    │
+│               rightChild(i) = 2*i + 2                                   │
+│                                                                          │
+│   insert(): O(log n) - add to end, bubble up                            │
+│   poll():   O(log n) - remove root, heapify down                        │
+│   peek():   O(1)     - return root                                      │
+│                                                                          │
+│   Use cases: Priority queue, heap sort, top-K elements                  │
+│                                                                          │
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
+### Graph Traversals
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                    BFS vs DFS TRAVERSAL                                  │
+│                                                                          │
+│   Graph:            1 ─── 2                                             │
+│                     │     │                                             │
+│                     3 ─── 4 ─── 5                                       │
+│                     │                                                    │
+│                     6                                                    │
+│                                                                          │
+│   BFS (Breadth-First) - Level by level using QUEUE                      │
+│   ┌───────────────────────────────────────────────────────────────┐     │
+│   │ Start at 1                                                     │     │
+│   │ Level 0: [1]                                                  │     │
+│   │ Level 1: [2, 3]                                               │     │
+│   │ Level 2: [4, 6]                                               │     │
+│   │ Level 3: [5]                                                  │     │
+│   │                                                                │     │
+│   │ Order: 1 → 2 → 3 → 4 → 6 → 5                                  │     │
+│   │ Best for: Shortest path, level order, nearest neighbor        │     │
+│   └───────────────────────────────────────────────────────────────┘     │
+│                                                                          │
+│   DFS (Depth-First) - Go deep before backtracking using STACK/recursion │
+│   ┌───────────────────────────────────────────────────────────────┐     │
+│   │ Start at 1, go deep:                                          │     │
+│   │ 1 → 2 → 4 → 3 → 6 → 5                                        │     │
+│   │ (or 1 → 3 → 6 → 4 → 5 → 2 depending on order)                │     │
+│   │                                                                │     │
+│   │ Best for: Connectivity, cycle detection, path finding         │     │
+│   └───────────────────────────────────────────────────────────────┘     │
+│                                                                          │
+│   Comparison:                                                           │
+│   ┌─────────────┬────────────────────┬────────────────────────┐        │
+│   │             │ BFS                │ DFS                    │        │
+│   ├─────────────┼────────────────────┼────────────────────────┤        │
+│   │ Data struct │ Queue              │ Stack/Recursion        │        │
+│   │ Memory      │ O(width)           │ O(depth)               │        │
+│   │ Shortest    │ ✓ (unweighted)     │ ✗                      │        │
+│   │ Path exist  │ ✓                  │ ✓                      │        │
+│   │ Connected   │ ✓                  │ ✓                      │        │
+│   └─────────────┴────────────────────┴────────────────────────┘        │
+│                                                                          │
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
+### Common Algorithm Patterns
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                    ALGORITHM PATTERNS CHEAT SHEET                        │
+│                                                                          │
+│   TWO POINTERS                                                          │
+│   ┌─────────────────────────────────────────────────────────────┐       │
+│   │ Use when: Sorted array, find pairs, remove duplicates       │       │
+│   │ [1, 2, 3, 4, 5, 6, 7]                                       │       │
+│   │  ↑                 ↑                                        │       │
+│   │ left             right                                      │       │
+│   └─────────────────────────────────────────────────────────────┘       │
+│                                                                          │
+│   SLIDING WINDOW                                                        │
+│   ┌─────────────────────────────────────────────────────────────┐       │
+│   │ Use when: Subarray/substring with constraint                │       │
+│   │ [1, 2, 3, 4, 5, 6, 7]                                       │       │
+│   │     └─────┘                                                 │       │
+│   │    window of size k                                         │       │
+│   │    Slide: remove left, add right                            │       │
+│   └─────────────────────────────────────────────────────────────┘       │
+│                                                                          │
+│   BINARY SEARCH                                                         │
+│   ┌─────────────────────────────────────────────────────────────┐       │
+│   │ Use when: Sorted array, find element or boundary            │       │
+│   │ [1, 2, 3, 4, 5, 6, 7]                                       │       │
+│   │  ↑        ↑        ↑                                        │       │
+│   │ lo      mid       hi                                        │       │
+│   │ Compare mid with target, eliminate half                     │       │
+│   └─────────────────────────────────────────────────────────────┘       │
+│                                                                          │
+│   FREQUENCY COUNTER (HashMap)                                           │
+│   ┌─────────────────────────────────────────────────────────────┐       │
+│   │ Use when: Count occurrences, find duplicates, anagrams      │       │
+│   │ "aab" → {'a': 2, 'b': 1}                                    │       │
+│   └─────────────────────────────────────────────────────────────┘       │
+│                                                                          │
+│   BACKTRACKING                                                          │
+│   ┌─────────────────────────────────────────────────────────────┐       │
+│   │ Use when: Generate all possibilities (permutations, subsets)│       │
+│   │ Choose → Explore → Unchoose                                 │       │
+│   └─────────────────────────────────────────────────────────────┘       │
+│                                                                          │
+│   DYNAMIC PROGRAMMING                                                   │
+│   ┌─────────────────────────────────────────────────────────────┐       │
+│   │ Use when: Overlapping subproblems, optimal substructure     │       │
+│   │ Approach: Top-down (memoization) or Bottom-up (tabulation)  │       │
+│   └─────────────────────────────────────────────────────────────┘       │
+│                                                                          │
+└─────────────────────────────────────────────────────────────────────────┘
+```
 
 ## Code Examples
 

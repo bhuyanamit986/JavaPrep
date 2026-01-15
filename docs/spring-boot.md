@@ -4,20 +4,187 @@ Spring is the most popular Java enterprise framework. This guide covers core Spr
 
 ## Definitions
 
-- **IoC (Inversion of Control)**: the framework manages object creation and wiring.
-- **DI (Dependency Injection)**: dependencies are provided to a class instead of created inside it.
-- **Bean**: a managed object in the Spring application context.
-- **ApplicationContext**: the container that holds beans and configuration.
-- **Auto-configuration**: Spring Boot feature that configures beans based on classpath and properties.
-- **Component scanning**: automatic discovery of classes annotated with `@Component` and friends.
-- **Starter**: a curated dependency set that pulls in common libraries.
-- **Transaction**: a unit of work that must fully succeed or fully fail.
+- **IoC (Inversion of Control)**: Design principle where the framework controls object creation and lifecycle. You define what you need; the container provides it.
+
+- **DI (Dependency Injection)**: Implementation of IoC where dependencies are "injected" into a class rather than created by it. Enables loose coupling and testability.
+
+- **Bean**: Any object managed by the Spring container. Created, configured, and destroyed by Spring.
+
+- **ApplicationContext**: The Spring container that manages beans. Loads configuration, creates beans, and handles their lifecycle.
+
+- **Auto-configuration**: Spring Boot's magic - automatically configures beans based on classpath contents and properties. "Just works" out of the box.
+
+- **Component Scanning**: Automatic discovery of beans via annotations (`@Component`, `@Service`, `@Repository`, `@Controller`).
+
+- **Starter**: Pre-packaged dependency bundles (e.g., `spring-boot-starter-web`). Includes everything needed for a feature.
+
+- **AOP (Aspect-Oriented Programming)**: Adds cross-cutting concerns (logging, security, transactions) without modifying business code.
+
+- **Transaction**: A unit of work that either fully completes or fully rolls back. Spring handles this declaratively with `@Transactional`.
 
 ## Illustrations
 
-- **Container**: like a restaurant kitchen that prepares and wires ingredients for you.
-- **Auto-configuration**: a "starter kit" that sets up defaults so you can start quickly.
-- **DI**: swapping a power adapter rather than rewiring a device.
+### Dependency Injection Visualized
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│              WITHOUT DI (Tight Coupling)                                 │
+│                                                                          │
+│   ┌──────────────────────────────────────────────────────────────────┐ │
+│   │  class OrderService {                                             │ │
+│   │      private PaymentService payment = new PaymentService();  ✗    │ │
+│   │      private InventoryService inventory = new InventoryService();│ │
+│   │      private EmailService email = new EmailService();            │ │
+│   │  }                                                                │ │
+│   └──────────────────────────────────────────────────────────────────┘ │
+│                                                                          │
+│   Problems:                                                             │
+│   • Can't easily swap implementations                                   │
+│   • Hard to test (can't mock dependencies)                             │
+│   • Tight coupling between classes                                      │
+│                                                                          │
+└─────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────┐
+│              WITH DI (Loose Coupling)                                    │
+│                                                                          │
+│   ┌──────────────────────────────────────────────────────────────────┐ │
+│   │  @Service                                                         │ │
+│   │  class OrderService {                                             │ │
+│   │      private final PaymentService payment;     // Injected ✓     │ │
+│   │      private final InventoryService inventory;                    │ │
+│   │      private final EmailService email;                            │ │
+│   │                                                                   │ │
+│   │      public OrderService(PaymentService payment,                  │ │
+│   │                         InventoryService inventory,               │ │
+│   │                         EmailService email) {                     │ │
+│   │          this.payment = payment;                                  │ │
+│   │          this.inventory = inventory;                              │ │
+│   │          this.email = email;                                      │ │
+│   │      }                                                            │ │
+│   │  }                                                                │ │
+│   └──────────────────────────────────────────────────────────────────┘ │
+│                                                                          │
+│   Benefits:                                                             │
+│   • Easy to swap implementations (use interfaces)                       │
+│   • Easy to test (inject mocks)                                         │
+│   • Loose coupling                                                      │
+│                                                                          │
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
+### Spring Container Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                    SPRING CONTAINER (ApplicationContext)                 │
+│                                                                          │
+│   ┌──────────────────────────────────────────────────────────────────┐ │
+│   │                                                                   │ │
+│   │         Configuration                Bean Factory                 │ │
+│   │   ┌─────────────────────┐      ┌──────────────────────────┐     │ │
+│   │   │ @Configuration      │      │                          │     │ │
+│   │   │ @ComponentScan      │──────│   Creates & Manages      │     │ │
+│   │   │ application.yml     │      │   Bean Instances         │     │ │
+│   │   └─────────────────────┘      │                          │     │ │
+│   │                                │   ┌──────────────────┐   │     │ │
+│   │                                │   │ UserService      │   │     │ │
+│   │                                │   │ (singleton)      │   │     │ │
+│   │                                │   └──────────────────┘   │     │ │
+│   │                                │   ┌──────────────────┐   │     │ │
+│   │                                │   │ UserRepository   │   │     │ │
+│   │                                │   │ (singleton)      │   │     │ │
+│   │                                │   └──────────────────┘   │     │ │
+│   │                                │   ┌──────────────────┐   │     │ │
+│   │                                │   │ EmailService     │   │     │ │
+│   │                                │   │ (singleton)      │   │     │ │
+│   │                                │   └──────────────────┘   │     │ │
+│   │                                └──────────────────────────┘     │ │
+│   │                                                                   │ │
+│   │   Container responsibilities:                                    │ │
+│   │   • Instantiate beans                                            │ │
+│   │   • Wire dependencies                                            │ │
+│   │   • Manage lifecycle (init, destroy)                             │ │
+│   │   • Apply aspects (AOP)                                          │ │
+│   │                                                                   │ │
+│   └──────────────────────────────────────────────────────────────────┘ │
+│                                                                          │
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
+### Bean Lifecycle
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                         SPRING BEAN LIFECYCLE                            │
+│                                                                          │
+│   1. INSTANTIATION                                                      │
+│      │ Bean class instantiated (constructor called)                     │
+│      ▼                                                                  │
+│   2. POPULATE PROPERTIES                                                │
+│      │ Dependencies injected (@Autowired fields, setters)               │
+│      ▼                                                                  │
+│   3. BEAN NAME AWARE                                                    │
+│      │ setBeanName() if BeanNameAware implemented                       │
+│      ▼                                                                  │
+│   4. BEAN FACTORY AWARE                                                 │
+│      │ setBeanFactory() if BeanFactoryAware implemented                 │
+│      ▼                                                                  │
+│   5. PRE-INITIALIZATION                                                 │
+│      │ BeanPostProcessor.postProcessBeforeInitialization()              │
+│      ▼                                                                  │
+│   6. INITIALIZATION                                                     │
+│      │ @PostConstruct methods called                                    │
+│      │ afterPropertiesSet() if InitializingBean implemented             │
+│      │ Custom init-method                                               │
+│      ▼                                                                  │
+│   7. POST-INITIALIZATION                                                │
+│      │ BeanPostProcessor.postProcessAfterInitialization()               │
+│      │ (AOP proxies created here!)                                      │
+│      ▼                                                                  │
+│   ═══════════════════════════════════════════════════════════          │
+│               BEAN READY FOR USE                                        │
+│   ═══════════════════════════════════════════════════════════          │
+│      │                                                                  │
+│      ▼ (On application shutdown)                                        │
+│   8. DESTRUCTION                                                        │
+│      @PreDestroy methods called                                         │
+│      destroy() if DisposableBean implemented                            │
+│      Custom destroy-method                                              │
+│                                                                          │
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
+### Component Annotations
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                    STEREOTYPE ANNOTATIONS                                │
+│                                                                          │
+│                      @Component                                         │
+│                    (Generic bean)                                       │
+│                          │                                              │
+│          ┌───────────────┼───────────────┐                              │
+│          │               │               │                              │
+│          ▼               ▼               ▼                              │
+│     @Service        @Repository     @Controller                         │
+│   (Business        (Data Access    (Web Layer)                          │
+│    Logic)           Layer)                │                             │
+│                          │               │                              │
+│                          │               ├── @RestController            │
+│                          │               │   (REST APIs)                │
+│                          │               │                              │
+│                          │               └── @ControllerAdvice          │
+│                          │                   (Exception handling)       │
+│                          │                                              │
+│                          └── Enables exception translation              │
+│                              (SQLException → DataAccessException)       │
+│                                                                          │
+│   All are @Component - Spring creates beans from them                   │
+│   Semantic difference: indicates role in architecture                   │
+│                                                                          │
+└─────────────────────────────────────────────────────────────────────────┘
+```
 
 ## Code Examples
 
