@@ -4,18 +4,124 @@ Design patterns are reusable solutions to common software design problems. This 
 
 ## Definitions
 
-- **Design pattern**: a proven template for solving a recurring design problem.
-- **Creational pattern**: focuses on object creation (e.g., Singleton, Factory, Builder).
-- **Structural pattern**: focuses on object composition (e.g., Adapter, Decorator).
-- **Behavioral pattern**: focuses on object interaction (e.g., Strategy, Observer).
-- **Singleton**: ensures one instance with global access (use carefully).
-- **Strategy**: swaps behavior at runtime via composition.
+- **Design Pattern**: A reusable solution to a commonly occurring problem in software design. Not code, but a template for how to solve a problem.
+
+- **Creational Patterns**: Deal with object creation mechanisms, trying to create objects in a manner suitable to the situation.
+  - Singleton, Factory Method, Abstract Factory, Builder, Prototype
+
+- **Structural Patterns**: Deal with object composition, creating relationships between objects to form larger structures.
+  - Adapter, Decorator, Facade, Proxy, Composite, Bridge, Flyweight
+
+- **Behavioral Patterns**: Deal with communication between objects, how objects interact and distribute responsibility.
+  - Strategy, Observer, Template Method, Command, Iterator, State, Chain of Responsibility
 
 ## Illustrations
 
-- **Factory**: ordering a product from a menu instead of assembling it yourself.
-- **Strategy**: choosing different routes (fastest, cheapest) for the same trip.
-- **Observer**: subscribing to updates and getting notified when something changes.
+### Pattern Categories Overview
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                       DESIGN PATTERN CATEGORIES                          │
+│                                                                          │
+│   CREATIONAL                 STRUCTURAL               BEHAVIORAL        │
+│   "How to create"           "How to compose"         "How to interact"  │
+│   ┌───────────────┐         ┌───────────────┐        ┌───────────────┐  │
+│   │ • Singleton   │         │ • Adapter     │        │ • Strategy    │  │
+│   │ • Factory     │         │ • Decorator   │        │ • Observer    │  │
+│   │ • Abstract    │         │ • Facade      │        │ • Template    │  │
+│   │   Factory     │         │ • Proxy       │        │   Method      │  │
+│   │ • Builder     │         │ • Composite   │        │ • Command     │  │
+│   │ • Prototype   │         │ • Bridge      │        │ • State       │  │
+│   │               │         │ • Flyweight   │        │ • Chain of    │  │
+│   │               │         │               │        │   Responsibility│
+│   └───────────────┘         └───────────────┘        └───────────────┘  │
+│                                                                          │
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
+### Real-World Analogies
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                    PATTERN ANALOGIES                                     │
+│                                                                          │
+│   SINGLETON:  Only one CEO in a company                                 │
+│   ┌─────────────────────────────────────────────────────────────┐       │
+│   │  Company ──▶ CEO (only one) ◀── All departments access      │       │
+│   └─────────────────────────────────────────────────────────────┘       │
+│                                                                          │
+│   FACTORY:  Restaurant kitchen - order "burger", kitchen makes it       │
+│   ┌─────────────────────────────────────────────────────────────┐       │
+│   │  Customer ──▶ "I want a burger" ──▶ Kitchen ──▶ 🍔          │       │
+│   │  (doesn't know how to cook)         (knows how)             │       │
+│   └─────────────────────────────────────────────────────────────┘       │
+│                                                                          │
+│   BUILDER:  Building a custom pizza with toppings                       │
+│   ┌─────────────────────────────────────────────────────────────┐       │
+│   │  PizzaBuilder.dough().sauce().cheese().pepperoni().build()  │       │
+│   │           ↓       ↓      ↓         ↓           ↓            │       │
+│   │       Step 1  Step 2  Step 3   Step 4      Final 🍕          │       │
+│   └─────────────────────────────────────────────────────────────┘       │
+│                                                                          │
+│   ADAPTER:  Power plug adapter (US plug → EU socket)                    │
+│   ┌─────────────────────────────────────────────────────────────┐       │
+│   │  [US Plug] ──▶ [Adapter] ──▶ [EU Socket]                    │       │
+│   │  Incompatible     Makes compatible                          │       │
+│   └─────────────────────────────────────────────────────────────┘       │
+│                                                                          │
+│   DECORATOR:  Adding toppings to ice cream                              │
+│   ┌─────────────────────────────────────────────────────────────┐       │
+│   │  Ice Cream ──▶ + Chocolate ──▶ + Sprinkles ──▶ Final 🍦     │       │
+│   │  Base           Decorator 1     Decorator 2                  │       │
+│   └─────────────────────────────────────────────────────────────┘       │
+│                                                                          │
+│   STRATEGY:  GPS navigation - same destination, different routes        │
+│   ┌─────────────────────────────────────────────────────────────┐       │
+│   │  Navigator.setStrategy(FastestRoute or ShortestRoute)       │       │
+│   │           ↓                                                  │       │
+│   │  Same interface, different algorithms                        │       │
+│   └─────────────────────────────────────────────────────────────┘       │
+│                                                                          │
+│   OBSERVER:  YouTube subscriptions - notify when new video              │
+│   ┌─────────────────────────────────────────────────────────────┐       │
+│   │  Channel (Subject) ──▶ New video! ──▶ Subscriber 1          │       │
+│   │                                   ──▶ Subscriber 2          │       │
+│   │                                   ──▶ Subscriber 3          │       │
+│   └─────────────────────────────────────────────────────────────┘       │
+│                                                                          │
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
+### Pattern Relationships
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                    WHEN TO USE WHICH PATTERN                             │
+│                                                                          │
+│   Problem                              Solution Pattern                  │
+│   ─────────────────────────────────    ────────────────                  │
+│   Need exactly one instance?           → Singleton                       │
+│   Create objects without specifying    → Factory Method                  │
+│     exact class?                                                         │
+│   Build complex objects step by step?  → Builder                         │
+│   Clone existing objects?              → Prototype                       │
+│                                                                          │
+│   Make incompatible interfaces work    → Adapter                         │
+│     together?                                                            │
+│   Add behavior without modifying       → Decorator                       │
+│     existing code?                                                       │
+│   Simplify complex subsystem?          → Facade                          │
+│   Control access to an object?         → Proxy                           │
+│                                                                          │
+│   Swap algorithms at runtime?          → Strategy                        │
+│   Notify multiple objects of changes?  → Observer                        │
+│   Define skeleton, let subclasses      → Template Method                 │
+│     fill in steps?                                                       │
+│   Encapsulate requests as objects?     → Command                         │
+│   Handle requests in a chain?          → Chain of Responsibility         │
+│                                                                          │
+└─────────────────────────────────────────────────────────────────────────┘
+```
 
 ## Code Examples
 

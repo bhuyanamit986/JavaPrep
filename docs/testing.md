@@ -4,17 +4,153 @@ Testing is fundamental to software quality. This guide covers testing concepts, 
 
 ## Definitions
 
-- **Unit test**: verifies a single unit (method/class) in isolation.
-- **Integration test**: verifies interactions between components (e.g., DB + service).
-- **End-to-end test**: validates full user flows through the system.
-- **Mock**: a test double that simulates behavior and verifies interactions.
-- **Test pyramid**: a strategy favoring many unit tests, fewer integration tests, and few E2E tests.
-- **TDD**: write a failing test, write code to pass, then refactor.
+- **Unit Test**: Tests a single unit (method/class) in complete isolation. Dependencies are mocked. Fast and focused.
+
+- **Integration Test**: Tests how multiple components work together. May include real databases, APIs, or external services.
+
+- **End-to-End (E2E) Test**: Tests complete user workflows through the entire system. Slowest but highest confidence.
+
+- **Mock**: A test double that simulates behavior and can verify how it was called. Used to isolate the unit under test.
+
+- **Stub**: A test double that returns predefined responses. Doesn't verify interactions.
+
+- **Spy**: A partial mock that wraps a real object, allowing selective method stubbing.
+
+- **Test Pyramid**: Strategy recommending many fast unit tests, fewer integration tests, and few slow E2E tests.
+
+- **TDD (Test-Driven Development)**: Write failing test first, write minimal code to pass, refactor. Red → Green → Refactor.
+
+- **Code Coverage**: Percentage of code executed by tests. High coverage doesn't guarantee quality but low coverage indicates risk.
 
 ## Illustrations
 
-- **Mock**: a stunt double that stands in for a real actor during risky scenes.
-- **Test pyramid**: fast unit tests form the wide base; slow E2E tests are the narrow top.
+### Test Pyramid Explained
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                         TEST PYRAMID                                     │
+│                                                                          │
+│                            /\                                            │
+│                           /  \    E2E Tests                             │
+│                          /    \   • Few tests                           │
+│                         /      \  • Slow (minutes)                      │
+│                        /        \ • High confidence                     │
+│                       /    UI    \ • Expensive to maintain              │
+│                      /____________\                                      │
+│                     /              \                                     │
+│                    /                \  Integration Tests                 │
+│                   /                  \ • Medium count                    │
+│                  /                    \ • Medium speed                   │
+│                 /      Service         \ • Test component interactions  │
+│                /________________________\                                │
+│               /                          \                               │
+│              /                            \  Unit Tests                  │
+│             /                              \ • Many tests                │
+│            /                                \ • Very fast (ms)           │
+│           /              Unit                \ • Test one class/method  │
+│          /____________________________________\                          │
+│                                                                          │
+│   Write MORE tests at the bottom, FEWER at the top!                     │
+│                                                                          │
+│   Anti-pattern: Ice Cream Cone (inverted pyramid)                       │
+│   ┌──────────────────────┐                                              │
+│   │     Many E2E         │  ← Too many slow, fragile tests             │
+│   ├──────────────────────┤                                              │
+│   │ Few Integration      │                                              │
+│   ├──────────────────────┤                                              │
+│   │ Fewer Unit           │  ← Should have more!                         │
+│   └──────────────────────┘                                              │
+│                                                                          │
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
+### Test Doubles Explained
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                         TEST DOUBLES                                     │
+│                                                                          │
+│   Real Object                  Test Double                              │
+│   ┌──────────────┐            ┌──────────────┐                          │
+│   │  Database    │    ──▶     │   Mock DB    │  (Fake implementation)  │
+│   │  (Slow, I/O) │            │  (Fast)      │                          │
+│   └──────────────┘            └──────────────┘                          │
+│                                                                          │
+│   Types of Test Doubles:                                                │
+│   ┌────────────────────────────────────────────────────────────────┐   │
+│   │                                                                 │   │
+│   │   DUMMY   - Passed but never used. Fills parameter lists.      │   │
+│   │   ┌───────────────────────────────────────────────────┐        │   │
+│   │   │ new Service(new DummyLogger());  // Never called  │        │   │
+│   │   └───────────────────────────────────────────────────┘        │   │
+│   │                                                                 │   │
+│   │   STUB    - Returns canned answers. No verification.           │   │
+│   │   ┌───────────────────────────────────────────────────┐        │   │
+│   │   │ when(userRepo.findById(1)).thenReturn(testUser);  │        │   │
+│   │   └───────────────────────────────────────────────────┘        │   │
+│   │                                                                 │   │
+│   │   MOCK    - Pre-programmed with expectations. Verifies calls.  │   │
+│   │   ┌───────────────────────────────────────────────────┐        │   │
+│   │   │ verify(emailService).sendEmail(any());            │        │   │
+│   │   │ // Fails if not called!                           │        │   │
+│   │   └───────────────────────────────────────────────────┘        │   │
+│   │                                                                 │   │
+│   │   SPY     - Wraps real object. Can stub specific methods.      │   │
+│   │   ┌───────────────────────────────────────────────────┐        │   │
+│   │   │ List<String> spy = spy(new ArrayList<>());        │        │   │
+│   │   │ doReturn(100).when(spy).size();  // Stub one method│       │   │
+│   │   └───────────────────────────────────────────────────┘        │   │
+│   │                                                                 │   │
+│   │   FAKE    - Working implementation, but simplified.            │   │
+│   │   ┌───────────────────────────────────────────────────┐        │   │
+│   │   │ class FakeUserRepository implements UserRepository│        │   │
+│   │   │     Map<Long, User> data = new HashMap<>();       │        │   │
+│   │   │     // Real logic, but in-memory                  │        │   │
+│   │   │ }                                                 │        │   │
+│   │   └───────────────────────────────────────────────────┘        │   │
+│   │                                                                 │   │
+│   └────────────────────────────────────────────────────────────────┘   │
+│                                                                          │
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
+### TDD Cycle
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                    TDD: RED → GREEN → REFACTOR                           │
+│                                                                          │
+│            ┌─────────────────────────────────────────┐                  │
+│            │                                         │                  │
+│            ▼                                         │                  │
+│   ┌─────────────────┐                                │                  │
+│   │      RED        │  1. Write a failing test       │                  │
+│   │   (Test fails)  │     for new functionality      │                  │
+│   └────────┬────────┘                                │                  │
+│            │                                         │                  │
+│            ▼                                         │                  │
+│   ┌─────────────────┐                                │                  │
+│   │     GREEN       │  2. Write MINIMAL code to      │                  │
+│   │   (Test passes) │     make the test pass         │                  │
+│   └────────┬────────┘                                │                  │
+│            │                                         │                  │
+│            ▼                                         │                  │
+│   ┌─────────────────┐                                │                  │
+│   │    REFACTOR     │  3. Clean up code while        │                  │
+│   │  (Still passes) │     keeping tests green        │                  │
+│   └────────┬────────┘                                │                  │
+│            │                                         │                  │
+│            └─────────────────────────────────────────┘                  │
+│                        (Repeat for next feature)                        │
+│                                                                          │
+│   Benefits:                                                             │
+│   • Forces you to think about design first                              │
+│   • Ensures high test coverage                                          │
+│   • Provides safety net for refactoring                                 │
+│   • Documents expected behavior                                         │
+│                                                                          │
+└─────────────────────────────────────────────────────────────────────────┘
+```
 
 ## Code Examples
 

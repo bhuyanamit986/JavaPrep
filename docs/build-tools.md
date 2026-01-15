@@ -4,18 +4,141 @@ Understanding build tools is essential for Java development. This guide covers M
 
 ## Definitions
 
-- **Build tool**: automates compiling, testing, packaging, and running your project.
-- **Dependency**: an external library your code relies on.
-- **Repository**: a storage location for dependencies (e.g., Maven Central).
-- **Lifecycle**: a sequence of build phases (e.g., compile -> test -> package).
-- **Plugin**: an extension that adds build steps or capabilities.
-- **BOM (Bill of Materials)**: a POM that centralizes dependency versions.
+- **Build Tool**: Software that automates the process of compiling, testing, packaging, and deploying code. Ensures consistent, reproducible builds.
+
+- **Dependency**: External library your code needs. Build tools download and manage these automatically.
+
+- **Transitive Dependency**: A dependency of your dependency. E.g., if you use Spring Boot, it brings in hundreds of libraries you didn't specify.
+
+- **Repository**: A storage location for dependencies. Maven Central is the largest public repository.
+
+- **Lifecycle**: A predefined sequence of build phases (compile → test → package). Each phase executes specific goals.
+
+- **Plugin**: Extends build tool functionality. Examples: compiler plugin, test plugin, packaging plugins.
+
+- **BOM (Bill of Materials)**: A POM that only specifies versions of dependencies. Use to ensure consistent versions across a project.
+
+- **GAV Coordinates**: GroupId, ArtifactId, Version - unique identifier for any Maven artifact.
+
+- **Scope**: When a dependency is available (compile, test, runtime, provided).
 
 ## Illustrations
 
-- **Build tool**: like a recipe that always produces the same dish.
-- **Dependency tree**: a family tree where each library brings its own relatives.
-- **Lifecycle**: an assembly line where each station performs a specific step.
+### Build Process Flow
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                         BUILD PROCESS FLOW                               │
+│                                                                          │
+│   Source Code                                        Deployable Artifact │
+│        │                                                    ▲            │
+│        ▼                                                    │            │
+│   ┌─────────┐   ┌─────────┐   ┌─────────┐   ┌─────────┐   │            │
+│   │ COMPILE │──▶│  TEST   │──▶│ PACKAGE │──▶│ DEPLOY  │───┘            │
+│   │         │   │         │   │         │   │         │                 │
+│   │ .java   │   │ JUnit   │   │ JAR/WAR │   │ Server  │                 │
+│   │   →     │   │ tests   │   │ created │   │ or repo │                 │
+│   │ .class  │   │ run     │   │         │   │         │                 │
+│   └─────────┘   └─────────┘   └─────────┘   └─────────┘                 │
+│        │              │             │             │                      │
+│   Dependencies   Test deps     Resources     Credentials                │
+│   downloaded     included      bundled       configured                  │
+│                                                                          │
+│   Build tool automates ALL of this!                                     │
+│                                                                          │
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
+### Maven Lifecycle
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                      MAVEN DEFAULT LIFECYCLE                             │
+│                                                                          │
+│   validate → compile → test → package → verify → install → deploy       │
+│       │         │        │        │         │        │         │        │
+│       ▼         ▼        ▼        ▼         ▼        ▼         ▼        │
+│   ┌────────┐ ┌────────┐ ┌────────┐ ┌────────┐ ┌────────┐ ┌────────┐   │
+│   │Validate│ │Compile │ │Run     │ │Create  │ │Run     │ │Copy to │   │
+│   │project │ │source  │ │unit    │ │JAR/WAR │ │integr  │ │local   │   │
+│   │correct │ │code    │ │tests   │ │        │ │tests   │ │repo    │   │
+│   └────────┘ └────────┘ └────────┘ └────────┘ └────────┘ └────────┘   │
+│                                                                          │
+│   Running "mvn package" executes: validate→compile→test→package        │
+│   Running "mvn install" executes: validate→...→package→verify→install  │
+│                                                                          │
+│   Other lifecycles:                                                     │
+│   • clean: Removes target directory (pre-clean → clean → post-clean)   │
+│   • site: Generates documentation (pre-site → site → post-site)        │
+│                                                                          │
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
+### Dependency Scopes
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                      MAVEN DEPENDENCY SCOPES                             │
+│                                                                          │
+│   Scope        Compile  Test   Runtime  Packaged  Example               │
+│   ─────────    ───────  ────   ───────  ────────  ───────               │
+│   compile         ✓       ✓       ✓        ✓     Spring, Guava         │
+│   provided        ✓       ✓       ✗        ✗     Servlet API           │
+│   runtime         ✗       ✓       ✓        ✓     JDBC drivers          │
+│   test            ✗       ✓       ✗        ✗     JUnit, Mockito        │
+│   system          ✓       ✓       ✓        ✓     Local JAR (avoid!)    │
+│   import          -       -       -        -     BOM dependencies      │
+│                                                                          │
+│   Example:                                                              │
+│   ┌────────────────────────────────────────────────────────────────┐   │
+│   │ <dependency>                                                    │   │
+│   │   <groupId>junit</groupId>                                     │   │
+│   │   <artifactId>junit</artifactId>                               │   │
+│   │   <version>5.9.0</version>                                     │   │
+│   │   <scope>test</scope>  ← Only available during testing        │   │
+│   │ </dependency>                                                   │   │
+│   │                                                                 │   │
+│   │ <dependency>                                                    │   │
+│   │   <groupId>javax.servlet</groupId>                             │   │
+│   │   <artifactId>servlet-api</artifactId>                         │   │
+│   │   <version>4.0.1</version>                                     │   │
+│   │   <scope>provided</scope> ← Server provides at runtime        │   │
+│   │ </dependency>                                                   │   │
+│   └────────────────────────────────────────────────────────────────┘   │
+│                                                                          │
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
+### Transitive Dependencies
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                    TRANSITIVE DEPENDENCIES                               │
+│                                                                          │
+│   Your Project                                                          │
+│        │                                                                │
+│        ├── Spring Boot Starter Web (you declare)                       │
+│        │       │                                                        │
+│        │       ├── Spring Web (transitive)                             │
+│        │       │       ├── Spring Beans                                │
+│        │       │       └── Spring Core                                 │
+│        │       │                                                        │
+│        │       ├── Spring Boot Starter Tomcat                          │
+│        │       │       ├── Tomcat Embed Core                           │
+│        │       │       └── Tomcat Embed Websocket                      │
+│        │       │                                                        │
+│        │       └── Jackson (JSON)                                      │
+│        │               ├── Jackson Core                                │
+│        │               └── Jackson Databind                            │
+│        │                                                                │
+│        └── H2 Database (you declare)                                   │
+│                                                                          │
+│   You declare 2 dependencies, but ~50+ JARs end up in your classpath!  │
+│                                                                          │
+│   View with: mvn dependency:tree                                        │
+│                                                                          │
+└─────────────────────────────────────────────────────────────────────────┘
+```
 
 ## Code Examples
 
